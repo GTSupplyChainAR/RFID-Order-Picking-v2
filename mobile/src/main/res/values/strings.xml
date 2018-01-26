@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">RFID OrderPick</string>
+    <string-array name="xbands">
+        <item>Xband 1 - E076D0916795</item>
+        <item>Xband 2 - E076D09162D7</item>
+    </string-array>
+</resources>

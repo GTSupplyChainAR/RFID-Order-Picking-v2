@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RFID OrderPick</string>
+    <string name="title_activity_glass_main">RFID Immersion</string>
+    <string name="hello_world">Hello world!</string>
+</resources>

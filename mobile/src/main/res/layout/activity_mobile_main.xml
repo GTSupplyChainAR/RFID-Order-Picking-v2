@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/black"
+    tools:context="com.thad.rfid_orderpick.MobileMainActivity">
+
+    <LinearLayout
+        android:id="@+id/deviceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="3dp">
+            <TextView
+                android:text="#"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="#555555"/>
+            <TextView
+                android:text="Devices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:background="#555555"/>
+            <TextView
+                android:text="Conn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="#555555"/>
+            <TextView
+                android:text="Battery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="#555555"/>
+        </LinearLayout>
+
+        <!-- Devices will be added here -->
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/connect"
+            android:text="Re-Connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onConnect"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/get_data"
+            android:text="Get Data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onGetData"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/send_data"
+            android:text="Send Data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onSendData"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+
+    <!-- LOG -->
+    <TextView
+        android:id="@+id/mobileLogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="3dp"
+        android:textColor="@color/green"
+        android:text=" RFID Experiment Log\n===================" />
+
+    <ScrollView android:id="@+id/mobileLogScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/mobileLog"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="15dp"
+            android:textColor="@color/green"
+            android:text="> " />
+    </ScrollView>
+
+
+</LinearLayout>
+
