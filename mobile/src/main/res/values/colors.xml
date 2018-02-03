@@ -6,6 +6,11 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="green">#00FF00</color>
-    <color name="dark_gray">#555555</color>
-    <color name="light_gray">#DDDDDD</color>
+    <color name="red">#FF0000</color>
+    <color name="yellow">#FFFF00</color>
+    <color name="blue">#0000FF</color>
+    <color name="dark_gray">#444444</color>
+    <color name="gray">#777777</color>
+    <color name="light_gray">#AAAAAA</color>
+    <color name="dark_white">#DDDDDD</color>
 </resources>

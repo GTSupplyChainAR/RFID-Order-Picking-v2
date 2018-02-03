@@ -1,4 +1,12 @@
-package com.thad.rfid_orderpick;
+package com.thad.rfid_orderpick.Util;
+
+import android.util.Log;
+
+import com.thad.rfid_orderpick.MobileMainActivity;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
 
 import de.ubimax.xbandtest.xband.XBandConnectionHandler;
 import de.ubimax.xbandtest.xband.XBandEventListener;
@@ -18,7 +26,6 @@ public class XBandInterface implements XBandEventListener {
     private String xband_address;
     private int index;
 
-
     public XBandInterface(MobileMainActivity context, String address, int index) {
         mMain = context;
         xband_address = address;
@@ -29,21 +36,30 @@ public class XBandInterface implements XBandEventListener {
             xBandConnection.setActivateIMUService(false);
             xBandConnection.setLastConfigMessage(xBandConnection.createConfigurationProperty());
             xBandConnection.registerEventListener(this);
+            xBandConnection.setTagTimeoutInSeconds("2");
+            //xBandConnection.setInitialReaderPower((byte) 1);
         }
     }
 
     public void connect(){
-        if (xBandConnection == null) {
-            mMain.mLog(" failed.");
-            return;
+        if (xBandConnection != null) {
+            xBandConnection.connectDevice(xband_address);
         }
-        xBandConnection.connectDevice(xband_address);
-        mMain.mLog(" done.");
+    }
+
+    public void disconnect(){
+        if (xBandConnection != null) {
+            xBandConnection.disconnectDevice(xband_address);
+        }
+    }
+
+    public boolean isConnected(){
+        return xBandConnection.isConnected();
     }
 
     @Override
     public void onNewRFIDScan(String s) {
-        mMain.mLog("onNewRFIDScan -> "+s);
+        mMain.onNewRFIDScan(s);
     }
 
     @Override

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,6 +7,16 @@
     android:orientation="vertical"
     android:background="@color/black"
     tools:context="com.thad.rfid_orderpick.MobileMainActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:titleTextColor="@color/white"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <LinearLayout
         android:id="@+id/deviceList"
@@ -56,6 +65,8 @@
         <!-- Devices will be added here -->
     </LinearLayout>
 
+
+    <!-- Button Controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,20 +80,32 @@
             android:onClick="onConnect"
             android:layout_weight="1"/>
         <Button
-            android:id="@+id/get_data"
-            android:text="Get Data"
+            android:id="@+id/sync_data"
+            android:text="SYNC DATA"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onGetData"
+            android:onClick="onSyncData"
             android:layout_weight="1"/>
         <Button
-            android:id="@+id/send_data"
-            android:text="Send Data"
+            android:id="@+id/experiment_button"
+            android:text="START"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onSendData"
+            android:onClick="onExperimentClicked"
             android:layout_weight="1"/>
     </LinearLayout>
+
+    <!--
+          EXPERIMENT VIEW
+                            -->
+    <com.thad.rfid_orderpick.ExperimentView
+        android:id="@+id/experiment_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+
+    </com.thad.rfid_orderpick.ExperimentView>
 
 
     <!-- LOG -->

@@ -1,4 +1,4 @@
-package com.thad.rfid_orderpick;
+package com.thad.rfid_orderpick.Util;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -7,10 +7,19 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.thad.rfid_orderpick.ExperimentData;
+import com.thad.rfid_orderpick.ExperimentView;
+import com.thad.rfid_orderpick.MobileMainActivity;
+import com.thad.rfid_orderpick.PickingOrder;
+import com.thad.rfid_orderpick.R;
+
+import org.w3c.dom.Text;
 
 
 /**
@@ -21,17 +30,22 @@ public class UserInterfaceHandler {
     private static final String TAG = "RFID|UIHandler";
 
     public static String[] device_names = new String[]{"Google Glass", "XBand #0000", "XBand #0000"};
+    private static String mText;
     private static int edit_index = -1;
 
     private MobileMainActivity mActivity;
     private static TextView mobileLog;
 
-    private TextView[] batteries, connections, nameViews;
+    private static ExperimentView experiment_view;
+    private static TextView[] batteries, connections, nameViews;
 
-    private static String mText;
+
+    private static UpdateThread updateThread;
 
     public UserInterfaceHandler(MobileMainActivity context){
         mActivity = context;
+
+        experiment_view = (ExperimentView) mActivity.findViewById(R.id.experiment_view);
 
         mobileLog = (TextView)mActivity.findViewById(R.id.mobileLog);
 
@@ -83,7 +97,7 @@ public class UserInterfaceHandler {
                 padding_px = dp_to_pixels(7);
                 textView.setPadding(padding_px,padding_px,padding_px,padding_px);
                 textView.setTextColor(ContextCompat.getColor(mActivity, R.color.black));
-                textView.setBackgroundColor(ContextCompat.getColor(mActivity, R.color.light_gray));
+                textView.setBackgroundColor(ContextCompat.getColor(mActivity, R.color.dark_white));
 
                 deviceLayout.addView(textView);
             }
@@ -102,11 +116,29 @@ public class UserInterfaceHandler {
         updateXBandNames();
     }
 
+    public void startUpdating(){
+        updateThread = new UpdateThread();
+        updateThread.start();
+    }
+
     public void update_battery(int index, float val){
+        if(index <= 0 || index >= device_names.length) return;
+
+        val *= 100;
         if(val >= 100) val = 100;
         else if (val <= 0) val = 0;
-        String perc_val = Math.round(val)+"%";
-        batteries[index].setText(perc_val);
+        String text = Math.round(val)+"%";
+
+        mActivity.runOnUiThread(new UpdateTextRunnable(text, batteries[index]));
+    }
+
+    public void update_connection(int index, boolean status){
+        if(index < 0 || index >= device_names.length) return;
+
+        String text = "Yes";
+        if(!status) text = "No";
+
+        mActivity.runOnUiThread(new UpdateTextRunnable(text, connections[index]));
     }
 
     private void editDevicePopup(int index){
@@ -156,6 +188,25 @@ public class UserInterfaceHandler {
         alertDialog.show();
     }
 
+
+    public void startExperiment(ExperimentData experimentData){
+        View view = mActivity.findViewById(R.id.experiment_button);
+        mActivity.runOnUiThread(new UpdateTextRunnable("STOP", view));
+        experiment_view.setData(experimentData);
+        experiment_view.start();
+    }
+
+    public void stopExperiment(){
+        View view = mActivity.findViewById(R.id.experiment_button);
+        mActivity.runOnUiThread(new UpdateTextRunnable("START", view));
+        experiment_view.stop();
+    }
+
+    public void newOrder(PickingOrder pickingOrder){
+        experiment_view.newOrder(pickingOrder);
+    }
+
+
     public void updateXBandNames(){
         String xband_addr = mActivity.getAddress(1);
         device_names[1] = device_names[1].substring(0,device_names[1].length()-4)+xband_addr.substring(xband_addr.length()-4);
@@ -167,11 +218,11 @@ public class UserInterfaceHandler {
 
     //Adds to log with automatic new line.
     public void mLog(String text){
+        Log.d(TAG, text);
         mLogRaw(text+"\n> ");
     }
     //Adds to log without new line
     public void mLogRaw(String text){
-        Log.d(TAG, text);
         mText = text;
         mActivity.runOnUiThread(new Runnable() {
             @Override
@@ -187,5 +238,47 @@ public class UserInterfaceHandler {
     //HELPER FUNCTIONS
     private int dp_to_pixels(float dp){
         return (int) ((dp)*mActivity.getResources().getDisplayMetrics().density +0.5f);
+    }
+
+
+    //REAL-TIME UPDATERS
+    private class UpdateThread extends Thread{
+        long update_freq;
+
+        public UpdateThread(){this(1000);}
+        public UpdateThread(long update_freq){
+            this.update_freq = update_freq;
+        }
+
+        public void run(){
+            while(true) {
+                mActivity.update_connections();
+                try {
+                    sleep(update_freq);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private class UpdateTextRunnable implements Runnable {
+        String text;
+        View view;
+
+        public UpdateTextRunnable(String text, View view){
+            this.text = text;
+            this.view = view;
+        }
+
+        public void run(){
+            if(view instanceof Button){
+                Button button = (Button)view;
+                button.setText(text);
+            }else if (view instanceof TextView){
+                TextView textView = (TextView)view;
+                textView.setText(text);
+            }
+        }
     }
 }
