@@ -13,7 +13,6 @@ public class MobileBrain {
 
     private static MobileMainActivity mMain;
 
-    //private static String[][] rfid_tags;
     private static ExperimentData experimentData;
 
     private static int active_task, active_order;
@@ -56,16 +55,16 @@ public class MobileBrain {
 
     public void stopExperiment(){
 
-        mMain.mUI.newOrder(nextOrder());
-        //mMain.mUI.stopExperiment();
-        //experimentRunning = false;
+        //mMain.mUI.newOrder(nextOrder());
+        mMain.mUI.stopExperiment();
+        experimentRunning = false;
     }
 
     public boolean isExperimentRunning(){
         return experimentRunning;
     }
 
-    private PickingOrder nextOrder(){
+    public PickingOrder nextOrder(){
         active_order += 1;
         if(active_order >= pickingTasks.get(active_task).get_num_orders()){
             active_order = 0;
@@ -88,7 +87,7 @@ public class MobileBrain {
 
     public void onNewRFIDScan(String scan){
         //CHECK SCAN AGAINST RACK RFID TAGS
-        mMain.mLog("RFID Scan -> "+scan);
+        //mMain.mLog("RFID Scan -> "+scan);
     }
 
 

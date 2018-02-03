@@ -23,7 +23,7 @@ public class MobileMainActivity extends AppCompatActivity{
 
     private enum MSG_CODES { DATA, SCAN, GAME, SPLIT }
 
-    private static final boolean QUICK_START = false;
+    private static final boolean QUICK_START = true;
     private static final String PREFS_NAME = "PREFS";
 
     public static UserInterfaceHandler mUI;
@@ -85,16 +85,15 @@ public class MobileMainActivity extends AppCompatActivity{
     public void reconnect(){
         boolean[] states = checkConnections();
 
-
         mLog("Reconnecting with "+mUI.device_names[0]+"...");
         mGlassInterface = new GlassBluetoothInterface(this);
         mGlassInterface.connect();
 
         for(int i = 0 ; i < 2 ; i++){
             if(!states[i+1]) {
-                //mLog("Attempting to connect with "+mUI.device_names[i+1]+"...");
-                //mXBandInterface[i] = new XBandInterface(this, xband_bluetooth_addrs[i], i);
-                //mXBandInterface[i].connect();
+                mLog("Attempting to connect with "+mUI.device_names[i+1]+"...");
+                mXBandInterface[i] = new XBandInterface(this, xband_bluetooth_addrs[i], i);
+                mXBandInterface[i].connect();
             }
         }
     }
@@ -140,9 +139,10 @@ public class MobileMainActivity extends AppCompatActivity{
         }
     }
 
-    public void onNewRFIDScan(String scan){
-        mLog("New RFID scan -> "+scan);
+    public void onNewRFIDScan(String scan, int strength){
+        mLog("New RFID Scan: "+scan+", Strength: "+strength);
         mGlassInterface.sendString(MSG_CODES.SCAN.toString()+scan);
+        mUI.onNewScan(scan);
     }
 
     public void update_battery(int index, float v){
@@ -168,7 +168,6 @@ public class MobileMainActivity extends AppCompatActivity{
         //Log.d(TAG, "Connection States -> "+states[0]+", "+states[1]+", "+states[2]);
         return states;
     }
-
 
 
     public void editAddress(int index, String new_address){

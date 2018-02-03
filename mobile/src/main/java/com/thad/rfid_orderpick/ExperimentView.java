@@ -20,6 +20,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import static android.R.attr.onClick;
+import static com.thad.rfid_orderpick.MobileMainActivity.mBrain;
+import static com.thad.rfid_orderpick.MobileMainActivity.mUI;
+
 /**
  * Created by theo on 2/1/18.
  */
@@ -27,12 +31,12 @@ import java.util.Set;
 public class ExperimentView extends LinearLayout {
     private int white, black, red, yellow, green, blue, dark_gray, light_gray;
 
-    private boolean dataReady = false;
+    private boolean dataReady = false, running = false;
 
     private ExperimentData experimentData;
     private PickingOrder activeOrder;
 
-    private Context mContext;
+    private MobileMainActivity mContext;
 
     private LinearLayout mContainer;
     private TextView title;
@@ -45,18 +49,18 @@ public class ExperimentView extends LinearLayout {
 
     public ExperimentView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mContext = context;
+        mContext = (MobileMainActivity) context;
         init(context);
     }
 
     public ExperimentView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mContext = context;
+        mContext = (MobileMainActivity) context;
         init(context);
     }
 
     private void init(Context context) {
-        mContext = context;
+        mContext = (MobileMainActivity)context;
         LayoutInflater.from(getContext()).inflate(R.layout.experiment_view, this, true);
         //this.setBackgroundColor(Color.rgb(255,255,255));
         mContainer = this.findViewById(R.id.experiment_container);
@@ -79,11 +83,26 @@ public class ExperimentView extends LinearLayout {
     }
 
     public void start(){
+        if(!dataReady) return;
+
+        running = true;
         setVisibility(VISIBLE);
     }
 
     public void stop(){
+        running = false;
         setVisibility(GONE);
+    }
+
+    public void onNewScan(String tag){
+        mUI.mLog("1 onNewScan "+tag);
+        if(!running) return;
+        mUI.mLog("2 onNewScan "+tag);
+        boolean edited = editBin(tag, -1);
+        mUI.mLog("3 onNewScan "+tag+", "+edited);
+        if(edited) editBin(activeOrder.getReceiveBinTag(), -1);
+
+        mUI.mLog("4. Edited bin "+tag);
     }
 
     private void createUI(){
@@ -118,6 +137,14 @@ public class ExperimentView extends LinearLayout {
         title.setTextColor(white);
         title.setTextSize(text_size);
         title.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+
+        title.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                newOrder(mContext.mBrain.nextOrder());
+            }
+        });
+
         title_bar_layout.addView(title);
 
         LinearLayout cart_boxes = new LinearLayout(mContext);
@@ -136,6 +163,7 @@ public class ExperimentView extends LinearLayout {
             textView.setTextColor(dark_gray);
             textView.setTag(cart_tags[i]);
             textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_border));
+
             cart_boxes.addView(textView);
         }
 
@@ -174,6 +202,16 @@ public class ExperimentView extends LinearLayout {
                     default:
                         textView.setBackground(mContext.getResources().getDrawable(R.drawable.blue_border));
                 }
+
+                textView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String tag = (String) v.getTag();
+                        boolean edited = editBin(tag, -1);
+                        if(edited) editBin(activeOrder.getReceiveBinTag(), -1);
+                    }
+                });
+
                 lli.addView(textView);
                 //bins[i][j] = textView;
             }
@@ -182,6 +220,7 @@ public class ExperimentView extends LinearLayout {
     }
 
     public void newOrder(PickingOrder pickingOrder){
+        if(!running) return;
 
         removeOrder(activeOrder);
 
@@ -190,10 +229,52 @@ public class ExperimentView extends LinearLayout {
 
         Iterator it = item_map.entrySet().iterator();
         while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry) it.next();
+
+            editBin((String)pair.getKey(), (Integer)pair.getValue());
+        }
+        editBin(pickingOrder.getReceiveBinTag(), pickingOrder.getItemCount());
+
+        activeOrder = pickingOrder;
+    }
+
+    private void removeOrder(PickingOrder pickingOrder){
+        if(pickingOrder == null)
+            return;
+
+        HashMap<String,Integer> item_map = pickingOrder.getItems();
+
+        Iterator it = item_map.entrySet().iterator();
+        while (it.hasNext()) {
             Map.Entry pair = (Map.Entry)it.next();
-            TextView textView = this.findViewWithTag(pair.getKey());
-            int row = Integer.parseInt(String.valueOf(((String)pair.getKey()).charAt(1)));
-            switch (row){
+            clearBin((String) pair.getKey());
+        }
+
+        clearBin(pickingOrder.getReceiveBinTag());
+    }
+
+
+    private boolean editBin(String tag, int num){
+        TextView textView = this.findViewWithTag(tag);
+
+        if (num < 0){
+            String text = (String)textView.getText();
+            if(text.equals(tag))
+                return false;
+            num = Integer.parseInt(text) - 1;
+        }
+        if(num == 0){
+            clearBin(tag);
+            return true;
+        }
+
+        char letter = tag.charAt(0);
+        if(letter == 'C'){
+            textView.setTextColor(white);
+            textView.setBackgroundColor(light_gray);
+        }else {
+            int row = Integer.parseInt(String.valueOf((tag.charAt(1))));
+            switch (row) {
                 case 1:
                     textView.setTextColor(white);
                     textView.setBackgroundColor(red);
@@ -211,31 +292,22 @@ public class ExperimentView extends LinearLayout {
                     textView.setBackgroundColor(blue);
                     break;
             }
-            textView.setText(""+pair.getValue());
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
         }
-
-        String receiveTag = pickingOrder.getReceiveBinTag();
-        TextView receiveView = this.findViewWithTag(receiveTag);
-        receiveView.setText(""+pickingOrder.getItemCount());
-        receiveView.setTextColor(white);
-        receiveView.setBackgroundColor(light_gray);
-        activeOrder = pickingOrder;
+        textView.setText(""+num);
+        textView.setTypeface(Typeface.DEFAULT_BOLD);
+        return true;
     }
 
-    private void removeOrder(PickingOrder pickingOrder){
-        if(pickingOrder == null)
-            return;
+    private void clearBin(String tag){
+        TextView textView = this.findViewWithTag(tag);
+        textView.setTextColor(dark_gray);
 
-        HashMap<String,Integer> item_map = pickingOrder.getItems();
-
-        Iterator it = item_map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            TextView textView = this.findViewWithTag(pair.getKey());
-            int row = Integer.parseInt(String.valueOf(((String)pair.getKey()).charAt(1)));
-            textView.setTextColor(dark_gray);
-            switch (row){
+        char letter = tag.charAt(0);
+        if(letter == 'C'){
+            textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_border));
+        }else {
+            int row = Integer.parseInt(String.valueOf((tag).charAt(1)));
+            switch (row) {
                 case 1:
                     textView.setBackground(mContext.getResources().getDrawable(R.drawable.red_border));
                     break;
@@ -249,16 +321,10 @@ public class ExperimentView extends LinearLayout {
                     textView.setBackground(mContext.getResources().getDrawable(R.drawable.blue_border));
                     break;
             }
-            textView.setText(String.valueOf(pair.getKey()));
-            textView.setTypeface(Typeface.DEFAULT);
         }
 
-        String receiveTag = pickingOrder.getReceiveBinTag();
-        TextView receiveView = this.findViewWithTag(receiveTag);
-        receiveView.setText(receiveTag);
-        receiveView.setTextColor(dark_gray);
-        receiveView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_border));
-
+        textView.setText(tag);
+        textView.setTypeface(Typeface.DEFAULT);
     }
 
     //HELPER FUNCTIONS

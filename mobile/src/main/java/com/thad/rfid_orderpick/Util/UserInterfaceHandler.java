@@ -3,6 +3,7 @@ package com.thad.rfid_orderpick.Util;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.support.v4.content.ContextCompat;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -192,6 +193,14 @@ public class UserInterfaceHandler {
     public void startExperiment(ExperimentData experimentData){
         View view = mActivity.findViewById(R.id.experiment_button);
         mActivity.runOnUiThread(new UpdateTextRunnable("STOP", view));
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View layout = mActivity.findViewById(R.id.deviceList);
+                layout.setVisibility(View.GONE);
+            }
+        });
+
         experiment_view.setData(experimentData);
         experiment_view.start();
     }
@@ -199,6 +208,9 @@ public class UserInterfaceHandler {
     public void stopExperiment(){
         View view = mActivity.findViewById(R.id.experiment_button);
         mActivity.runOnUiThread(new UpdateTextRunnable("START", view));
+        View layout = mActivity.findViewById(R.id.deviceList);
+        layout.setVisibility(View.VISIBLE);
+
         experiment_view.stop();
     }
 
@@ -206,6 +218,9 @@ public class UserInterfaceHandler {
         experiment_view.newOrder(pickingOrder);
     }
 
+    public void onNewScan(String tag){
+        experiment_view.onNewScan(tag);
+    }
 
     public void updateXBandNames(){
         String xband_addr = mActivity.getAddress(1);
@@ -224,15 +239,17 @@ public class UserInterfaceHandler {
     //Adds to log without new line
     public void mLogRaw(String text){
         mText = text;
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String currentText = (String) mobileLog.getText();
-                mobileLog.setText(currentText+mText);
-                ScrollView mobileLogContainer = (ScrollView)mActivity.findViewById(R.id.mobileLogScrollView);
-                mobileLogContainer.fullScroll(View.FOCUS_DOWN);
-            }
-        });
+        mActivity.runOnUiThread(new AddToLogRunnable(text));
+
+//        mActivity.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                String currentText = (String) mobileLog.getText();
+//                mobileLog.setText(currentText+mText);
+//                ScrollView mobileLogContainer = (ScrollView)mActivity.findViewById(R.id.mobileLogScrollView);
+//                mobileLogContainer.fullScroll(View.FOCUS_DOWN);
+//            }
+//        });
     }
 
     //HELPER FUNCTIONS
@@ -253,6 +270,7 @@ public class UserInterfaceHandler {
         public void run(){
             while(true) {
                 mActivity.update_connections();
+
                 try {
                     sleep(update_freq);
                 } catch (InterruptedException e) {
@@ -279,6 +297,20 @@ public class UserInterfaceHandler {
                 TextView textView = (TextView)view;
                 textView.setText(text);
             }
+        }
+    }
+
+    private class AddToLogRunnable implements Runnable{
+        String text;
+
+        public AddToLogRunnable(String text){this.text = text;}
+
+        @Override
+        public void run() {
+            String currentText = (String)mobileLog.getText();
+            mobileLog.setText(currentText+text);
+            ScrollView mobileLogContainer = (ScrollView)mActivity.findViewById(R.id.mobileLogScrollView);
+            mobileLogContainer.fullScroll(View.FOCUS_DOWN);
         }
     }
 }
