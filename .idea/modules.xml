@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/RFID-Order-Picking-v2.iml" filepath="$PROJECT_DIR$/RFID-Order-Picking-v2.iml" />
       <module fileurl="file://$PROJECT_DIR$/RFID_OrderPick.iml" filepath="$PROJECT_DIR$/RFID_OrderPick.iml" />
       <module fileurl="file://$PROJECT_DIR$/glass/glass.iml" filepath="$PROJECT_DIR$/glass/glass.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />

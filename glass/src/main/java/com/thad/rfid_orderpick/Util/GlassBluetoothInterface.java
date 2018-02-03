@@ -35,7 +35,7 @@ public class GlassBluetoothInterface {
     private static final String TAG = "GlassBluetoothInterface";
     private static final int BYTE_HEADER_SIZE = 10;
 
-    private static final String PHONE_ADDRESS = "3C:BB:FD:27:A0:1E";
+    private static final String PHONE_ADDRESS = "A8:96:75:B5:CD:7A";
 
     private static final String GLASS_UUID = "00001101-0000-1000-8000-00805f9b34fb";
 

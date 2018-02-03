@@ -26,6 +26,8 @@ public class XBandInterface implements XBandEventListener {
     private String xband_address;
     private int index;
 
+    private String mTag;
+
     public XBandInterface(MobileMainActivity context, String address, int index) {
         mMain = context;
         xband_address = address;
@@ -37,6 +39,8 @@ public class XBandInterface implements XBandEventListener {
             xBandConnection.setLastConfigMessage(xBandConnection.createConfigurationProperty());
             xBandConnection.registerEventListener(this);
             xBandConnection.setTagTimeoutInSeconds("2");
+            //CHARU INITIAL POWER RFID
+            xBandConnection.setInitialReaderPower((byte) 2);
             //xBandConnection.setInitialReaderPower((byte) 1);
         }
     }
@@ -59,12 +63,13 @@ public class XBandInterface implements XBandEventListener {
 
     @Override
     public void onNewRFIDScan(String s) {
-        mMain.onNewRFIDScan(s);
+        mTag = s;
+        //mMain.onNewRFIDScan(s);
     }
 
     @Override
     public void onNewScanRSSI(short i) {
-        mMain.mLog("onNewRSSIScan -> "+i);
+        mMain.mLog("onNewScan -> "+ mTag + " with strength of: " + i);
     }
 
     @Override

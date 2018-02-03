@@ -92,9 +92,9 @@ public class MobileMainActivity extends AppCompatActivity{
 
         for(int i = 0 ; i < 2 ; i++){
             if(!states[i+1]) {
-                //mLog("Attempting to connect with "+mUI.device_names[i+1]+"...");
-                //mXBandInterface[i] = new XBandInterface(this, xband_bluetooth_addrs[i], i);
-                //mXBandInterface[i].connect();
+                mLog("Attempting to connect with "+mUI.device_names[i+1]+"...");
+                mXBandInterface[i] = new XBandInterface(this, xband_bluetooth_addrs[i], i);
+                mXBandInterface[i].connect();
             }
         }
     }
