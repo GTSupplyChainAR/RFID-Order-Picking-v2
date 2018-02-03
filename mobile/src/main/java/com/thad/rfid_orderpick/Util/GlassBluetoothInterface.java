@@ -27,7 +27,7 @@ public class GlassBluetoothInterface{
     private enum STATES {CONNECTED, DISCONNECTED, CONNECTING}
     private STATES state;
 
-    private static final String GLASS_MAC_ADDRESS = "F8:8F:CA:12:E0:A3";//"f4:f5:e8:12:02:4d";
+    private static String GLASS_MAC_ADDRESS = "F8:8F:CA:12:E0:A3";//"f4:f5:e8:12:02:4d";
 
     private static final String GLASS_UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
@@ -59,6 +59,10 @@ public class GlassBluetoothInterface{
             }
         }
         return null;
+    }
+
+    public void setGlassAddress(String addr){
+        GLASS_MAC_ADDRESS = addr;
     }
 
     public void stop() {
