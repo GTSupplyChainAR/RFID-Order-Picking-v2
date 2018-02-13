@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">RFID OrderPick</string>
-    <string name="title_activity_glass_main">RFID Immersion</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_glass_main">RFID</string>
+    <string name="error_correction_dialog">&#60; WRONG BIN &#62;\nCorrect the error and -TAP- </string>
 </resources>

@@ -4,9 +4,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--===================
+    ===== CONSOLE LOG =====
+    =======================
+    This is hidden during
+    experiment runtime  -->
+
+    <LinearLayout
+        android:id="@+id/glassLogLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/black">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/green"
+            android:text="Glass Log\n========"
+            android:textSize="15dp" />
+
+        <ScrollView
+            android:id="@+id/glassLogScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/glassLog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/green"
+                android:text="> "
+                android:textSize="15dp" />
+        </ScrollView>
+
+    </LinearLayout>
+
+
     <com.thad.rfid_orderpick.Util.ExperimentView
         android:id="@+id/experiment_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 
 </LinearLayout>

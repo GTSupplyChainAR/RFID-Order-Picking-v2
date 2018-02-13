@@ -1,45 +1,141 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
+    android:orientation="vertical"
     android:background="@color/black"
-    android:padding="@dimen/card_margin">
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="15dp">
 
-    <!--===================
-    ===== CONSOLE LOG =====
-    =======================
-    This is hidden during
-    experiment runtime  -->
+    <!-- =================
+    ======= TITLE ========
+    ======================-->
+
+    <TextView
+        android:id = "@+id/subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/error_correction_dialog"
+        android:gravity="center"
+        android:visibility="gone"
+        android:textColor="@color/white"/>
 
     <LinearLayout
-        android:id="@+id/glassLogLayout"
+        android:id="@+id/title_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/green"
-            android:text="Glass Log\n========\n"
-            android:textSize="15dp" />
+            android:text = "Picking Task"
+            android:textColor="@color/white"
+            android:textSize="20dp"/>
 
-        <ScrollView
-            android:id="@+id/glassLogScrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <TextView
-                android:id="@+id/glassLog"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/green"
-                android:text="> "
-                android:textSize="15dp" />
-        </ScrollView>
+        <TextView
+            android:id ="@+id/task_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "1"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/white"
+            android:textSize="20dp"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = " - "
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "Order "
+            android:textColor="@color/white"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id ="@+id/order_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "5"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/white"
+            android:textSize="20dp"/>
     </LinearLayout>
 
 
+    <!--
+          RACKS-->
 
 
-</RelativeLayout>
+    <LinearLayout
+        android:id="@+id/rack_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="15dp">
+
+
+                        <LinearLayout
+                            android:id="@+id/rackA"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_gravity="right"
+                            android:orientation="vertical">
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="5dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="7dp"
+                            android:layout_marginRight="7dp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="4dp"
+                            android:background="@color/dark_gray"/>
+
+                        <LinearLayout
+                            android:id="@+id/rackB"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_weight="1"
+                            android:layout_gravity="left">
+
+                        </LinearLayout>
+
+                </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/cart_mode"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:visibility="gone">
+
+    </LinearLayout>
+
+</LinearLayout>

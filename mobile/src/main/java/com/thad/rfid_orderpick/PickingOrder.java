@@ -45,4 +45,13 @@ public class PickingOrder {
     public String getReceiveBinTag(){
         return receiveBin;
     }
+
+    public int getTagCount(String tag){return items.get(tag);}
+
+    public boolean hasTag(String tag){return items.containsKey(tag);}
+
+    public void removeTag(String tag){
+        item_count -= items.get(tag);
+        items.remove(tag);
+    }
 }

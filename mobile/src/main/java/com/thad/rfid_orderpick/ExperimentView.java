@@ -34,7 +34,7 @@ public class ExperimentView extends LinearLayout {
     private boolean dataReady = false, running = false;
 
     private ExperimentData experimentData;
-    private PickingOrder activeOrder;
+    private PickingOrder activeOrder, backupOrder;
 
     private MobileMainActivity mContext;
 
@@ -95,14 +95,18 @@ public class ExperimentView extends LinearLayout {
     }
 
     public void onNewScan(String tag){
-        mUI.mLog("1 onNewScan "+tag);
         if(!running) return;
-        mUI.mLog("2 onNewScan "+tag);
-        boolean edited = editBin(tag, -1);
-        mUI.mLog("3 onNewScan "+tag+", "+edited);
-        if(edited) editBin(activeOrder.getReceiveBinTag(), -1);
 
-        mUI.mLog("4. Edited bin "+tag);
+        //int num = activeOrder.getTagCount(tag);
+        boolean isCart = tag.charAt(0) == 'C';
+        if(tag.equals(activeOrder.getReceiveBinTag())){
+            //mContext.onNewRFIDScan(tag, 255);
+            newOrder(mContext.mBrain.nextOrder());
+        }else if(!isCart && activeOrder.hasTag(tag)){
+            activeOrder.removeTag(tag);
+            clearBin(tag);
+        }
+        //editBin(activeOrder.getReceiveBinTag(), -num);
     }
 
     private void createUI(){
@@ -164,6 +168,15 @@ public class ExperimentView extends LinearLayout {
             textView.setTag(cart_tags[i]);
             textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_border));
 
+            textView.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String tag = (String) v.getTag();
+                    mContext.onNewRFIDScan(tag, 255);
+                    //boolean edited = editBin(tag, -1);
+                    //if(edited) editBin(activeOrder.getReceiveBinTag(), -1);
+                }
+            });
             cart_boxes.addView(textView);
         }
 
@@ -207,8 +220,9 @@ public class ExperimentView extends LinearLayout {
                     @Override
                     public void onClick(View v) {
                         String tag = (String) v.getTag();
-                        boolean edited = editBin(tag, -1);
-                        if(edited) editBin(activeOrder.getReceiveBinTag(), -1);
+                        mContext.onNewRFIDScan(tag, 255);
+                        //boolean edited = editBin(tag, -1);
+                        //if(edited) editBin(activeOrder.getReceiveBinTag(), -1);
                     }
                 });
 
@@ -236,6 +250,7 @@ public class ExperimentView extends LinearLayout {
         editBin(pickingOrder.getReceiveBinTag(), pickingOrder.getItemCount());
 
         activeOrder = pickingOrder;
+        backupOrder = pickingOrder;
     }
 
     private void removeOrder(PickingOrder pickingOrder){
@@ -261,9 +276,9 @@ public class ExperimentView extends LinearLayout {
             String text = (String)textView.getText();
             if(text.equals(tag))
                 return false;
-            num = Integer.parseInt(text) - 1;
+            num = Integer.parseInt(text) + num;
         }
-        if(num == 0){
+        if(num <= 0){
             clearBin(tag);
             return true;
         }

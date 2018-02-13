@@ -84,7 +84,7 @@ public class CommunicationHandler {
 
         decodeExperimentData_JSON(experimentJSON);
         decodePickData_JSON(pickdataJSON);
-        mMain.mLog("Received JSON Pick data -> "+data.length());
+        Log.d(TAG, "Received JSON Pick data of "+data.length()+" bytes");
         return true;
     }
 
@@ -147,10 +147,10 @@ public class CommunicationHandler {
             for(int i = 0 ; i < tasks.length() ; i++){
                 JSONObject task_i = tasks.getJSONObject(i);
                 JSONArray orders = task_i.getJSONArray("orders");
-                pickingTasks.add(new PickingTask());
+                pickingTasks.add(new PickingTask(i));
                 task_index++;
                 for(int j = 0 ; j < orders.length() ; j++) {
-                    PickingOrder pickingOrder = new PickingOrder();
+                    PickingOrder pickingOrder = new PickingOrder(j);
                     JSONObject order_j = orders.getJSONObject(j);
                     String[] tags = getStringKeys(order_j);
                     for(int k = 0 ; k < tags.length ; k++){
@@ -173,7 +173,7 @@ public class CommunicationHandler {
     }
 
     private boolean decodeScan(String scan){
-        mMain.mLog("New RFID Scan -> "+scan);
+        mMain.onNewScan(scan);
         return true;
     }
 

@@ -4,8 +4,10 @@ import com.thad.rfid_orderpick.Util.CommunicationHandler;
 import com.thad.rfid_orderpick.Util.GlassBluetoothInterface;
 import com.thad.rfid_orderpick.Util.UserInterfaceHandler;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Window;
 
 
@@ -33,7 +35,7 @@ public class GlassMainActivity extends Activity{
         setupBluetooth();
 
         mCommHandler = new CommunicationHandler(this);
-        mBrain = new GlassBrain(mUI);
+        mBrain = new GlassBrain(this, mUI);
     }
 
     private void setupBluetooth() {
@@ -47,7 +49,28 @@ public class GlassMainActivity extends Activity{
         mCommHandler.decodeMessage(msg);
     }
 
+    public void onNewScan(String tag){
+        mBrain.onNewScan(tag);
+    }
+
     public void mLog(String msg){
         mUI.mLog(msg);
+    }
+
+
+    @Override
+    public void onDestroy(){
+        btInterface.stop();
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keycode, KeyEvent event) {
+        if (keycode == KeyEvent.KEYCODE_DPAD_CENTER) {
+            mBrain.onTap();
+            return true;
+        }
+
+        return super.onKeyDown(keycode, event);
     }
 }

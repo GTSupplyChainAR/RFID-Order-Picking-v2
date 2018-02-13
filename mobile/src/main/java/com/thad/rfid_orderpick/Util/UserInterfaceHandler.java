@@ -190,7 +190,7 @@ public class UserInterfaceHandler {
     }
 
 
-    public void startExperiment(ExperimentData experimentData){
+    public void startExperiment(final ExperimentData experimentData){
         View view = mActivity.findViewById(R.id.experiment_button);
         mActivity.runOnUiThread(new UpdateTextRunnable("STOP", view));
         mActivity.runOnUiThread(new Runnable() {
@@ -201,8 +201,13 @@ public class UserInterfaceHandler {
             }
         });
 
-        experiment_view.setData(experimentData);
-        experiment_view.start();
+        mActivity.runOnUiThread(new ExperimentViewRunnable(experimentData));
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                experiment_view.start();
+            }
+        });
     }
 
     public void stopExperiment(){
@@ -211,7 +216,12 @@ public class UserInterfaceHandler {
         View layout = mActivity.findViewById(R.id.deviceList);
         layout.setVisibility(View.VISIBLE);
 
-        experiment_view.stop();
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                experiment_view.stop();
+            }
+        });
     }
 
     public void newOrder(PickingOrder pickingOrder){
@@ -219,7 +229,7 @@ public class UserInterfaceHandler {
     }
 
     public void onNewScan(String tag){
-        experiment_view.onNewScan(tag);
+        mActivity.runOnUiThread(new ExperimentViewRunnable(tag));
     }
 
     public void updateXBandNames(){
@@ -240,16 +250,6 @@ public class UserInterfaceHandler {
     public void mLogRaw(String text){
         mText = text;
         mActivity.runOnUiThread(new AddToLogRunnable(text));
-
-//        mActivity.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                String currentText = (String) mobileLog.getText();
-//                mobileLog.setText(currentText+mText);
-//                ScrollView mobileLogContainer = (ScrollView)mActivity.findViewById(R.id.mobileLogScrollView);
-//                mobileLogContainer.fullScroll(View.FOCUS_DOWN);
-//            }
-//        });
     }
 
     //HELPER FUNCTIONS
@@ -311,6 +311,28 @@ public class UserInterfaceHandler {
             mobileLog.setText(currentText+text);
             ScrollView mobileLogContainer = (ScrollView)mActivity.findViewById(R.id.mobileLogScrollView);
             mobileLogContainer.fullScroll(View.FOCUS_DOWN);
+        }
+    }
+
+    private class ExperimentViewRunnable implements Runnable{
+        ExperimentData experimentData = null;
+        String scan = null;
+
+        public ExperimentViewRunnable(String scan){
+            this.scan = scan;
+        }
+
+        public ExperimentViewRunnable(ExperimentData experimentData){
+            this.experimentData = experimentData;
+        }
+
+        @Override
+        public void run() {
+            if(experimentData != null){
+                experiment_view.setData(experimentData);
+            }else if(scan != null){
+                experiment_view.onNewScan(scan);
+            }
         }
     }
 }

@@ -7,14 +7,13 @@ import java.util.ArrayList;
  */
 
 public class PickingTask {
-    private static int total_tasks = 0;
-    public int id = 0;
+    private int id = 0;
+
     private ArrayList<PickingOrder> orders;
 
-    public PickingTask(){
+    public PickingTask(int id){
         orders = new ArrayList<PickingOrder>();
-        id = total_tasks;
-        total_tasks += 1;
+        this.id = id;
     }
 
     public void addOrder(PickingOrder pickingOrder){
@@ -25,7 +24,16 @@ public class PickingTask {
     public PickingOrder getOrder(int index){
         return orders.get(index);
     }
-    public int get_num_orders(){
+    public int getOrderCount(){
         return orders.size();
+    }
+    public int getID(){return id;}
+    public int getOrderIndex(int id){
+        for(int i = 0 ; i < orders.size() ; i++){
+            if(id == orders.get(i).getID()){
+                return i;
+            }
+        }
+        return -1;
     }
 }

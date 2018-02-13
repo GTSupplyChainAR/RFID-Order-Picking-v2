@@ -169,6 +169,11 @@ public class MobileMainActivity extends AppCompatActivity{
         return states;
     }
 
+    @Override
+    public void onDestroy(){
+        mGlassInterface.stop();
+        super.onDestroy();
+    }
 
     public void editAddress(int index, String new_address){
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);

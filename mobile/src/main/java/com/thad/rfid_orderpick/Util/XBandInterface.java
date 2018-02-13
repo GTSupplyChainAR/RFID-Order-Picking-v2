@@ -39,7 +39,7 @@ public class XBandInterface implements XBandEventListener {
             xBandConnection.setLastConfigMessage(xBandConnection.createConfigurationProperty());
             xBandConnection.registerEventListener(this);
             xBandConnection.setTagTimeoutInSeconds("2");
-            xBandConnection.setInitialReaderPower((byte) 1);
+            xBandConnection.setInitialReaderPower((byte) 2);
         }
     }
 

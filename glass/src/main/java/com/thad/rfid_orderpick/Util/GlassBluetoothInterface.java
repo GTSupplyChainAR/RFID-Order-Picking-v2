@@ -102,12 +102,13 @@ public class GlassBluetoothInterface {
 
             try {
                 socket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(GLASS_UUID, UUID.fromString(GLASS_UUID));
-                mMain.mLog("Socket created.");
+                Log.d(TAG, "Socket created.");
             } catch (IOException e) {
                 mMain.mLog("Socket failed.");
                 e.printStackTrace();
             }
 
+            mMain.mLog("Awaiting Connection...");
             serverSocket = socket;
         }
 
@@ -116,13 +117,14 @@ public class GlassBluetoothInterface {
 
             while (true) {
                 try {
-                    socket = serverSocket.accept();
+                    Log.d(TAG, "Waiting to accept.");
+                    socket = serverSocket.accept(2000);
                 } catch (IOException e) {
-                    mMain.mLog("Socket accept failed");
+                    Log.d(TAG, "Socket accept failed");
                 }
 
                 if (socket != null) {
-                    mMain.mLog("Socket connected");
+                    Log.d(TAG, "Socket connected");
                     connect(socket);
                     return;
                 }
@@ -161,7 +163,8 @@ public class GlassBluetoothInterface {
                 mMain.mLog("Error occurred when creating client output stream");
             }
 
-            mMain.mLog("I/O Streams created.");
+            Log.d(TAG, "I/O Streams created.");
+            mMain.mLog("You are connected!");
             connectedInputStream = inputStream;
             connectedOutputStream = outputStream;
         }
