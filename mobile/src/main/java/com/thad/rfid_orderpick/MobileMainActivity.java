@@ -3,19 +3,22 @@ package com.thad.rfid_orderpick;
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 
-import com.thad.rfid_orderpick.Util.FileIO;
-import com.thad.rfid_orderpick.Util.GlassBluetoothInterface;
-import com.thad.rfid_orderpick.Util.UserInterfaceHandler;
-import com.thad.rfid_orderpick.Util.XBandInterface;
+import com.thad.rfid_lib.Static.Prefs;
+import com.thad.rfid_lib.Static.Utils;
+import com.thad.rfid_orderpick.Communications.ClientBluetooth;
+import com.thad.rfid_orderpick.Communications.XBandInterface;
+import com.thad.rfid_orderpick.UI.FileIO;
+import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
 
 public class MobileMainActivity extends AppCompatActivity{
@@ -23,19 +26,19 @@ public class MobileMainActivity extends AppCompatActivity{
 
     private enum MSG_CODES { DATA, SCAN, GAME, SPLIT }
 
-    private static final boolean QUICK_START = true;
+    private static final boolean QUICK_START = false;
     private static final String PREFS_NAME = "PREFS";
 
     public static UserInterfaceHandler mUI;
 
-    private static String glass_bluetooth_addrs;
 
-    private static GlassBluetoothInterface mGlassInterface;
+    private static ClientBluetooth mGlassInterface;
+    //private static String glass_bluetooth_addrs;
     private static XBandInterface[] mXBandInterface;
-    private static String[] xband_bluetooth_addrs = new String[2];
+    //private static String[] xband_bluetooth_addrs = new String[2];
 
     private static FileIO mFileIO;
-    public static MobileBrain mBrain;
+    public static MobileClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,31 +48,19 @@ public class MobileMainActivity extends AppCompatActivity{
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        glass_bluetooth_addrs = settings.getString("glass_bluetooth_addrs", "F8:8F:CA:12:E0:A3");
-        xband_bluetooth_addrs[0] = settings.getString("xband_bluetooth_addrs1", "B#E076D0916795");
-        xband_bluetooth_addrs[1] = settings.getString("xband_bluetooth_addrs2", "B#E076D09162D7");
-
-
-        mUI = new UserInterfaceHandler(this);
-        mUI.setup(); //populate device list
-        mUI.startUpdating();
+        String[] addrs = new String[3];
+        addrs[0] = settings.getString("glass_bluetooth_addrs", "F8:8F:CA:12:E0:A3");
+        addrs[1] = settings.getString("xband_bluetooth_addrs0", "B#E076D0916795");
+        addrs[2] = settings.getString("xband_bluetooth_addrs1", "B#E076D09162D7");
 
         requestRequiredPermissions();
+        Prefs.SCREEN_WIDTH = Utils.getScreenWidth(this);
 
-        mLog("Initializing Application...");
-        mFileIO = new FileIO(this);
-        mBrain = new MobileBrain(this);
+        mClient = new MobileClient(this);
 
-        mGlassInterface = new GlassBluetoothInterface(this);
-        mGlassInterface.setGlassAddress(glass_bluetooth_addrs);
-        mXBandInterface = new XBandInterface[]{new XBandInterface(this, xband_bluetooth_addrs[0], 0),
-                                                  new XBandInterface(this, xband_bluetooth_addrs[1], 1)};
 
-        if(QUICK_START){
-            reconnect();
-            syncData();
-        }
     }
 
     @Override
@@ -79,6 +70,50 @@ public class MobileMainActivity extends AppCompatActivity{
         return true;
     }
 
+    @Override
+    public void onDestroy(){
+        mClient.shutdown();
+        super.onDestroy();
+    }
+
+
+    private void requestRequiredPermissions(){
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+        }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+        }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, 0);
+        }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 0);
+        }
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_PRIVILEGED)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_PRIVILEGED}, 0);
+        }
+    }
+
+
+    public void onConnect(View view){
+        mClient.onConnect();
+    }
+    public void onSyncData(View view){ mClient.onSyncData(); }
+    public void onExperimentClicked(View view){ Log.d(TAG, "onExperimentClicked"); mClient.onExperimentClicked(); }
+
+
+
+
+
+
+
+    /*
     public void onConnect(View view){
         reconnect();
     }
@@ -86,7 +121,7 @@ public class MobileMainActivity extends AppCompatActivity{
         boolean[] states = checkConnections();
 
         mLog("Reconnecting with "+mUI.device_names[0]+"...");
-        mGlassInterface = new GlassBluetoothInterface(this);
+        mGlassInterface = new ClientBluetooth(this);
         mGlassInterface.connect();
 
         for(int i = 0 ; i < 2 ; i++){
@@ -169,11 +204,6 @@ public class MobileMainActivity extends AppCompatActivity{
         return states;
     }
 
-    @Override
-    public void onDestroy(){
-        mGlassInterface.stop();
-        super.onDestroy();
-    }
 
     public void editAddress(int index, String new_address){
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
@@ -211,27 +241,5 @@ public class MobileMainActivity extends AppCompatActivity{
     public void mLog(String str){mUI.mLog(str);}
     public void mLogRaw(String str){mUI.mLogRaw(str);}
 
-
-    private void requestRequiredPermissions(){
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
-        }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-        }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, 0);
-        }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 0);
-        }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_PRIVILEGED)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_PRIVILEGED}, 0);
-        }
-    }
+    */
 }

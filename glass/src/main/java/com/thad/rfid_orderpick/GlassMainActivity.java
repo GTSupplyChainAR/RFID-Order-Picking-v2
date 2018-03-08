@@ -1,25 +1,20 @@
 package com.thad.rfid_orderpick;
 
-import com.thad.rfid_orderpick.Util.CommunicationHandler;
-import com.thad.rfid_orderpick.Util.GlassBluetoothInterface;
-import com.thad.rfid_orderpick.Util.UserInterfaceHandler;
-
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
+import android.view.WindowManager;
+
+import com.thad.rfid_lib.Static.Prefs;
+import com.thad.rfid_lib.Static.Utils;
 
 
 public class GlassMainActivity extends Activity{
-    private final static String TAG = "MainActivity";
+    private final static String TAG = "|GlassMainActivity|";
 
-
-    private UserInterfaceHandler mUI;
-
-    private GlassBluetoothInterface btInterface;
-    private CommunicationHandler mCommHandler;
-    public GlassBrain mBrain;
+    public GlassClient mClient;
 
 
     @Override
@@ -27,50 +22,28 @@ public class GlassMainActivity extends Activity{
         super.onCreate(bundle);
 
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         setContentView(R.layout.experiment_activity);
 
-        mUI = new UserInterfaceHandler(this);
+        Prefs.SCREEN_WIDTH = Utils.getScreenWidth(this);
 
-        setupBluetooth();
+        mClient = new GlassClient(this);
 
-        mCommHandler = new CommunicationHandler(this);
-        mBrain = new GlassBrain(this, mUI);
     }
-
-    private void setupBluetooth() {
-        btInterface = new GlassBluetoothInterface(this);
-        btInterface.acceptConnection();
-    }
-
-    public void onBytesRecieved(final byte[] bytes, int num_bytes) {
-        String msg = new String(bytes, 0, num_bytes);
-
-        mCommHandler.decodeMessage(msg);
-    }
-
-    public void onNewScan(String tag){
-        mBrain.onNewScan(tag);
-    }
-
-    public void mLog(String msg){
-        mUI.mLog(msg);
-    }
-
 
     @Override
     public void onDestroy(){
-        btInterface.stop();
+        mClient.shutdown();
         super.onDestroy();
     }
 
     @Override
     public boolean onKeyDown(int keycode, KeyEvent event) {
         if (keycode == KeyEvent.KEYCODE_DPAD_CENTER) {
-            mBrain.onTap();
+            mClient.onTap();
             return true;
         }
-
         return super.onKeyDown(keycode, event);
     }
 }

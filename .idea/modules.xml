@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/RFID_OrderPick.iml" filepath="$PROJECT_DIR$/RFID_OrderPick.iml" />
       <module fileurl="file://$PROJECT_DIR$/glass/glass.iml" filepath="$PROJECT_DIR$/glass/glass.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rfid_lib/rfid_lib.iml" filepath="$PROJECT_DIR$/rfid_lib/rfid_lib.iml" />
     </modules>
   </component>
 </project>

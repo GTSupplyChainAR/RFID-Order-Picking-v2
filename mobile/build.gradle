@@ -35,4 +35,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile(name:'xband-release', ext:'aar')
     compile 'org.slf4j:slf4j-api:1.7.13'
+    compile project(path: ':rfid_lib')
 }

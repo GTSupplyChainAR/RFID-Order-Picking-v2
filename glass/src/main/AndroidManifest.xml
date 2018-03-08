@@ -13,6 +13,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".GlassMainActivity"
+            android:immersive="true"
             android:icon="@drawable/ic_glass_logo"
             android:label="@string/title_activity_glass_main">
             <intent-filter>

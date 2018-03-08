@@ -1,40 +1,22 @@
 package com.thad.rfid_orderpick;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import static android.R.attr.onClick;
-import static com.thad.rfid_orderpick.MobileMainActivity.mBrain;
-import static com.thad.rfid_orderpick.MobileMainActivity.mUI;
 
 /**
  * Created by theo on 2/1/18.
  */
 
 public class ExperimentView extends LinearLayout {
+
     private int white, black, red, yellow, green, blue, dark_gray, light_gray;
 
     private boolean dataReady = false, running = false;
 
-    private ExperimentData experimentData;
-    private PickingOrder activeOrder, backupOrder;
 
     private MobileMainActivity mContext;
 
@@ -75,6 +57,9 @@ public class ExperimentView extends LinearLayout {
         light_gray = mContext.getResources().getColor(R.color.gray);
     }
 
+    /*
+    private ExperimentData experimentData;
+    private PickingOrder activeOrder, backupOrder;
 
     public void setData(ExperimentData experimentData){
         this.experimentData = experimentData;
@@ -166,7 +151,7 @@ public class ExperimentView extends LinearLayout {
             textView.setLayoutParams(box_lp);
             textView.setTextColor(dark_gray);
             textView.setTag(cart_tags[i]);
-            textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_border));
+            textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_fade_right));
 
             textView.setOnClickListener(new OnClickListener() {
                 @Override
@@ -319,7 +304,7 @@ public class ExperimentView extends LinearLayout {
 
         char letter = tag.charAt(0);
         if(letter == 'C'){
-            textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_border));
+            textView.setBackground(mContext.getResources().getDrawable(R.drawable.gray_fade_right));
         }else {
             int row = Integer.parseInt(String.valueOf((tag).charAt(1)));
             switch (row) {
@@ -346,5 +331,6 @@ public class ExperimentView extends LinearLayout {
     private int dp_to_pixels(float dp){
         return (int) ((dp)*mContext.getResources().getDisplayMetrics().density +0.5f);
     }
+    */
 
 }

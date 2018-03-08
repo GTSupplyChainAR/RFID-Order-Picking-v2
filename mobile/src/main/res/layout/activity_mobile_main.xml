@@ -98,15 +98,12 @@
     <!--
           EXPERIMENT VIEW
                             -->
-    <com.thad.rfid_orderpick.ExperimentView
-        android:id="@+id/experiment_view"
+    <LinearLayout
+        android:id = "@+id/experiment_view_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone">
-
-
-    </com.thad.rfid_orderpick.ExperimentView>
-
+        android:orientation="horizontal">
+    </LinearLayout>
 
     <!-- LOG -->
     <TextView

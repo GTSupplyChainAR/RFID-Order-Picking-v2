@@ -1,0 +1,23 @@
+{
+	"version":"1.0",
+	"shelving_units":[
+		{
+			"shelving_unit_tag":"A",
+			"rows":4,
+			"cols":3,
+			"isCart":false
+		},
+		{
+			"shelving_unit_tag":"B",
+			"rows":4,
+			"cols":3,
+			"isCart":false
+		},
+		{
+			"shelving_unit_tag":"C",
+			"rows":1,
+			"cols":3,
+			"isCart":true
+		}
+	]
+}

@@ -1,1 +1,1 @@
-include ':mobile', ':glass'
+include ':mobile', ':glass', ':rfid_lib'
