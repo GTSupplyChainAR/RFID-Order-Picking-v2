@@ -1,4 +1,4 @@
-package com.thad.rfid_orderpick.UI;
+package com.thad.rfid_orderpick;
 
 import android.util.Log;
 

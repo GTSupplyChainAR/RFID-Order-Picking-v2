@@ -17,7 +17,6 @@ import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.Communications.ClientBluetooth;
 import com.thad.rfid_orderpick.Communications.XBandInterface;
-import com.thad.rfid_orderpick.UI.FileIO;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
 

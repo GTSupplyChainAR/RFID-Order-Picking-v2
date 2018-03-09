@@ -149,7 +149,7 @@ public class ShelvingUnitUI extends LinearLayout {
                 CellUI cellUI = new CellUI(experiment, shelvingUnit.isCart());
 
                 cellUI.setSize(cell_width, cell_height);
-                cellUI.setColor(rack_colors[r]);
+                cellUI.setColor(rack_colors[r%rack_colors.length]);
                 cellUI.setTag(shelvingUnit.getTag()+""+(r+1)+""+(c+1));
 
                 cellUI.generate();
@@ -206,10 +206,14 @@ public class ShelvingUnitUI extends LinearLayout {
     private void createViewsFadedNeighbor(NEIGHBOR neighbor, ViewGroup container){
         int[] dims = shelvingUnit.getDimensions();
 
+        int faded_width = cell_width;
+        for(NEIGHBOR neigh : neighbors.keySet())
+            if(neighbors.get(neigh))
+                faded_width = faded_width/2;
+
         for(int r = 0 ; r < dims[0] ; r++){
             ImageView cell = new ImageView(context);
-            LayoutParams lp_cell = new LayoutParams(
-                    cell_width/2, cell_height);
+            LayoutParams lp_cell = new LayoutParams(faded_width, cell_height);
             int margins = Utils.dp_to_pixels(context, 1.5f);
             lp_cell.setMargins(margins, margins, margins, margins);
             cell.setLayoutParams(lp_cell);

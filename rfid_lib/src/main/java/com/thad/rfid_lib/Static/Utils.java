@@ -10,6 +10,8 @@ import android.util.DisplayMetrics;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +50,38 @@ public class Utils {
 
     public static int dp_to_pixels(Context context, float dp){
         return (int) ((dp)*context.getResources().getDisplayMetrics().density +0.5f);
+    }
+
+    public static double distance(int[] p1, int[] p2){
+        return Math.sqrt(Math.pow(p1[0]-p2[0],2)+Math.pow(p1[1]-p2[1],2));
+    }
+
+    public static Drawable loadDrawableFromAssets(Context context, String filename){
+        try {
+            InputStream ims = context.getAssets().open(filename);
+             return Drawable.createFromStream(ims, null);
+        }
+        catch(IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String formatTimestamp(Long time){
+        int seconds = (int) (time / 1000)%60;
+        int minutes = ((int)(time/1000)/60)%60;
+        int hours = (int)(time/1000)/60/60;
+
+        String hoursStr = Integer.toString(hours);
+        if(hours < 10) hoursStr = "0"+hoursStr;
+
+        String minutesStr = Integer.toString(minutes);
+        if(minutes < 10) minutesStr = "0"+minutesStr;
+
+        String secondsStr = Integer.toString(seconds);
+        if(seconds < 10) secondsStr = "0"+secondsStr;
+
+        return hoursStr+":"+minutesStr+":"+secondsStr;
     }
 
     public static void changeDrawableColor(Drawable drawable, int color_resource){

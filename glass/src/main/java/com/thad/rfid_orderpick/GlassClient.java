@@ -73,7 +73,7 @@ public class GlassClient implements ExperimentListener {
     }
 
     public void onTap(){
-        //TAPPED GLASS
+        mExperiment.errorFixed();
     }
 
     public void onNewScan(String tag){

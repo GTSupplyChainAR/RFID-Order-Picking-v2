@@ -65,22 +65,36 @@ public class ExperimentView extends LinearLayout {
     }
 
     public void displayOverlay(HashMap<String, Integer> itemsOnHand, String correctBinTag, String wrongBinTag){
-        overlay.setVisibility(VISIBLE);
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                overlay.setVisibility(VISIBLE);
+            }
+        });
 
         String correctLetterTag = Utils.tagToLetter(correctBinTag);
-        int[] correctPos = Utils.tagToPos(correctBinTag);
-
         String wrongLetterTag = Utils.tagToLetter(wrongBinTag);
+        if(!wrongLetterTag.equals(correctLetterTag))
+            return;
+
+        int[] correctPos = Utils.tagToPos(correctBinTag);
         int[] wrongPos = Utils.tagToPos(wrongBinTag);
 
-        if(!wrongLetterTag.equals(correctLetterTag))
-                return;
-
-        Log.d(TAG, "Error Mode.");
-        Log.d(TAG, "Items on Hand-> "+itemsOnHand.size());
+        Log.d(TAG, "Error mode: Items on Hand-> "+itemsOnHand.size());
         Log.d(TAG, "Should have been put into "+correctBinTag+" but were put into " + wrongBinTag+" instead.");
 
         cartUI.toggleError(wrongPos);
+        overlay.fill(itemsOnHand, correctPos, wrongPos);
+    }
+
+    public void hideOverlay(){
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                overlay.setVisibility(GONE);
+                overlay.removeAllViews();
+            }
+        });
     }
 
     private void createViews(){
@@ -142,7 +156,7 @@ public class ExperimentView extends LinearLayout {
         titleText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                experiment.nextOrder();
+                experiment.errorFixed();
             }
         });
 

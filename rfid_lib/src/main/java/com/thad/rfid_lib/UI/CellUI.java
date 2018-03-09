@@ -95,10 +95,10 @@ public class CellUI {
 
     public void fill(){
         if(!isCart) {
-            cellDrawable.fill();
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    cellDrawable.fill();
                     cellView.setBackground(cellDrawable.getDrawable());
                 }
             });
@@ -113,10 +113,10 @@ public class CellUI {
     }
     public void empty(){
         if(!isCart) {
-            cellDrawable.empty();
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    cellDrawable.empty();
                     cellView.setBackground(cellDrawable.getDrawable());
                 }
             });
@@ -140,10 +140,10 @@ public class CellUI {
             activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                cellView.setBackground(cellDrawable.getDrawable());
+                    cellDrawable.toggleCross();
+                    cellView.setBackground(cellDrawable.getDrawable());
                 }
             });
-            cellDrawable.toggleCross();
         }else {
             activity.runOnUiThread(new Runnable() {
                 @Override

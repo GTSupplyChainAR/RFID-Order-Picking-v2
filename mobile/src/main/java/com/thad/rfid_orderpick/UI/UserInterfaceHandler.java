@@ -3,6 +3,7 @@ package com.thad.rfid_orderpick.UI;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.support.annotation.IntegerRes;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,10 +16,15 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.thad.rfid_lib.Decoder;
+import com.thad.rfid_lib.Experiment;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
+import com.thad.rfid_lib.UIRunnables.SetTextRunnable;
 import com.thad.rfid_orderpick.MobileClient;
 import com.thad.rfid_orderpick.R;
+
+import java.sql.Time;
 
 
 /**
@@ -46,13 +52,13 @@ public class UserInterfaceHandler {
         mClient = client;
         mActivity = (Activity)mClient.getContext();
 
-        //experiment_view = (ExperimentView) mActivity.findViewById(R.id.experiment_view);
 
         mobileLog = mActivity.findViewById(R.id.mobileLog);
 
         nameViews = new TextView[Prefs.NUM_DEVICES];
         batteries = new TextView[Prefs.NUM_DEVICES];
         connections = new TextView[Prefs.NUM_DEVICES];
+
 
         setup();
     }
@@ -143,12 +149,15 @@ public class UserInterfaceHandler {
             public void run() {
                 LinearLayout deviceList = mActivity.findViewById(R.id.deviceList);
                 Button experimentButton = mActivity.findViewById(R.id.experiment_button);
+                TextView timer = mActivity.findViewById(R.id.timer);
                 if(deviceList.getVisibility() == View.GONE) {
                     experimentButton.setText("START");
                     deviceList.setVisibility(View.VISIBLE);
+                    timer.setVisibility(View.GONE);
                 }else{
                     experimentButton.setText("STOP");
                     deviceList.setVisibility(View.GONE);
+                    timer.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -223,7 +232,15 @@ public class UserInterfaceHandler {
         }
     }
 
-
+    public void updateTimer(){
+        Long experimentElapsedTime = mClient.getExperimentTime();
+        TextView timerView = mActivity.findViewById(R.id.timer);
+        if(experimentElapsedTime == null){
+            mActivity.runOnUiThread(new SetTextRunnable(timerView, "00:00:00"));
+        }else {
+            mActivity.runOnUiThread(new SetTextRunnable(timerView, Utils.formatTimestamp(experimentElapsedTime)));
+        }
+    }
 
 
     public void mLog(String text){
@@ -246,7 +263,7 @@ public class UserInterfaceHandler {
     private class UpdateThread extends Thread{
         long update_freq;
 
-        public UpdateThread(){this(1000);}
+        public UpdateThread(){this(500);}
         public UpdateThread(long update_freq){
             this.update_freq = update_freq;
         }
@@ -255,6 +272,7 @@ public class UserInterfaceHandler {
             while(true) {
                 updateConnections();
                 updateXBandNames();
+                updateTimer();
 
                 try {
                     sleep(update_freq);
@@ -298,6 +316,5 @@ public class UserInterfaceHandler {
             mobileLogContainer.fullScroll(View.FOCUS_DOWN);
         }
     }
-
 
 }

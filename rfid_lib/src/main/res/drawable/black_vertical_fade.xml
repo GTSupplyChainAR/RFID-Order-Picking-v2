@@ -8,7 +8,14 @@
                 android:centerColor="#F000"
                 android:endColor="#0000"
                 android:angle="225"/>
-            <corners android:radius="@dimen/corners" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="#F000"
+                android:endColor="#0000"
+                android:angle="270"/>
         </shape>
     </item>
 

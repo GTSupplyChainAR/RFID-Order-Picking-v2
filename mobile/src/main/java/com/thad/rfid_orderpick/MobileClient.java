@@ -8,7 +8,6 @@ import com.thad.rfid_lib.ExperimentListener;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.Communications.CommunicationHandler;
-import com.thad.rfid_orderpick.UI.FileIO;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
 /**
@@ -72,7 +71,7 @@ public class MobileClient implements ExperimentListener{
         mExperiment.setData(mFileIO.loadWarehouseData(),
                 mFileIO.loadPickingData());
         //Send to Glass
-        mCommHandler.send(mExperiment);
+        //mCommHandler.send(mExperiment);
     }
     public void onConnect(){mCommHandler.reconnect();}
     public void onExperimentClicked(){
@@ -112,6 +111,7 @@ public class MobileClient implements ExperimentListener{
     //GETTERS
     public String[] getAddresses(){return mCommHandler.getAddresses();}
     public boolean[] getConnStatus(){return mCommHandler.getConnStatus();}
+    public Long getExperimentTime(){return mExperiment.getElapsedTime();}
     //END OF GETTERS
 
 
@@ -122,5 +122,8 @@ public class MobileClient implements ExperimentListener{
     public void onFakeScan(String scan){onNewRFIDScan(scan, 255);}
     public boolean isGlass(){return false;}
     public void playSound(Utils.SOUNDS sound){}
+
+
+
 
 }

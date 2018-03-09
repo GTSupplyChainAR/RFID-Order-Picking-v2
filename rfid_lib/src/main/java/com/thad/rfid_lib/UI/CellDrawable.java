@@ -59,10 +59,10 @@ public class CellDrawable {
     }
 
     public void fill(){
-        state = STATES.FILLED;
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                state = STATES.FILLED;
                 fillDrawable.setColor(activity.getResources().getColor(color));
                 Drawable[] layers = {borderDrawable, fillDrawable};
                 layerDrawable = new LayerDrawable(layers);
@@ -73,10 +73,10 @@ public class CellDrawable {
     }
 
     public void empty(){
-        state = STATES.EMPTY;
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                state = STATES.EMPTY;
                 Drawable[] layers = {borderDrawable};
                 layerDrawable = new LayerDrawable(layers);
                 layerDrawable.setLayerInset(0, 0, 0, 0, 0);
@@ -119,11 +119,10 @@ public class CellDrawable {
     }
 
     public void addCheck(){
-        state = STATES.CHECKED;
-
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                state = STATES.CHECKED;
                 fillDrawable.setColor(activity.getResources().getColor(R.color.dark_gray));
                 Drawable[] layers = {borderDrawable, fillDrawable};
                 layerDrawable = new LayerDrawable(layers);

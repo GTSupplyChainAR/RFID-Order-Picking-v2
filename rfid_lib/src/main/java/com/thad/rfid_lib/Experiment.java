@@ -42,6 +42,7 @@ public class Experiment {
 
     private ExperimentView experimentView;
 
+    private Long startTime;
     private int active_shelving_unit = 0;
     private PickingOrder activeOrder;
     private HashMap<String, Integer> itemsOnHand;
@@ -64,6 +65,7 @@ public class Experiment {
             return false;
 
         print("Experiment Starting...");
+        startTime = System.currentTimeMillis();
         state = STATES.ACTIVE;
 
         experimentView = new ExperimentView(this);
@@ -99,6 +101,7 @@ public class Experiment {
     }
 
     public void reset(){
+        startTime = null;
         pickingData.reset();
         itemsOnHand.clear();
         wrongScans.clear();
@@ -281,8 +284,23 @@ public class Experiment {
     }
 
 
+    public void errorFixed(){
+        if(state != STATES.ERROR)
+            return;
+        state = STATES.ACTIVE;
+        experimentView.hideOverlay();
+        experimentView.getCartUI().emptyAll();
+        experimentView.getCartUI().fillCell(Utils.tagToPos(activeOrder.getReceiveBinTag()));
+        onNewScan(activeOrder.getReceiveBinTag());
+    }
+
     //UTILS
     public boolean isActive(){return state == STATES.ACTIVE || state == STATES.ERROR;}
+    public Long getElapsedTime(){
+        if(startTime == null)
+            return null;
+        return System.currentTimeMillis() - startTime;
+    }
 
 
     //CALLBACKS
