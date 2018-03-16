@@ -11,6 +11,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.thad.rfid_lib.Data.PickingOrder;
+import com.thad.rfid_lib.UIRunnables.SetTextRunnable;
 import com.thad.rfid_orderpick.GlassClient;
 import com.thad.rfid_orderpick.GlassMainActivity;
 import com.thad.rfid_orderpick.R;
@@ -24,7 +25,7 @@ public class UserInterfaceHandler {
     private static final String TAG = "UserInterfaceHandler";
 
 
-    private static TextView glassLog;
+    private static TextView glassLog, userFriendlyLog;
 
 
     private Activity mActivity;
@@ -35,28 +36,40 @@ public class UserInterfaceHandler {
         mClient = client;
 
         glassLog = (TextView)(mActivity).findViewById(R.id.glassLog);
+        userFriendlyLog = (TextView)mActivity.findViewById(R.id.user_friendly_log);
+        mActivity.runOnUiThread(new SetTextRunnable(userFriendlyLog, "AWAITING CONNECTION"));
     }
 
 
-    public void onExperimentToggled(){
+    public void onExperimentStopped(){
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 ViewGroup log_container = (ViewGroup)mActivity.findViewById(R.id.glassLogLayout);
-                if(log_container.getVisibility() == View.GONE) {
-                    Log.d(TAG, "Show log.");
-                    log_container.setVisibility(View.VISIBLE);
-                }else{
-                    Log.d(TAG, "Hiding log.");
-                    log_container.setVisibility(View.GONE);
-                }
+                Log.d(TAG, "Show log.");
+                //log_container.setVisibility(View.VISIBLE);
+                userFriendlyLog.setVisibility(View.VISIBLE);
             }
         });
     }
 
+    public void onExperimentStarted(){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup log_container = (ViewGroup)mActivity.findViewById(R.id.glassLogLayout);
+                Log.d(TAG, "Hiding log.");
+                //log_container.setVisibility(View.GONE);
+                userFriendlyLog.setVisibility(View.GONE);
+            }
+        });
+    }
+    public void onConnected(){
+        mActivity.runOnUiThread(new SetTextRunnable(userFriendlyLog, "Ready to START"));
+    }
 
     public ViewGroup getExperimentContainer(){
-        return (ViewGroup)mActivity.findViewById(R.id.experiment_container);
+        return (ViewGroup)mActivity.findViewById(R.id.experiment_view_container);
     }
     public void mLog(String text){
         mLogRaw(text+"\n> ");
@@ -77,7 +90,8 @@ public class UserInterfaceHandler {
             String currentText = (String)glassLog.getText();
             glassLog.setText(currentText+text);
             ScrollView mobileLogContainer = (ScrollView)mActivity.findViewById(R.id.glassLogScrollView);
-            mobileLogContainer.fullScroll(View.FOCUS_DOWN);
+            if(mobileLogContainer != null)
+                mobileLogContainer.fullScroll(View.FOCUS_DOWN);
         }
     }
 

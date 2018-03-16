@@ -32,8 +32,10 @@ public class GlassMainActivity extends Activity{
 
     }
 
+
     @Override
     public void onDestroy(){
+        Log.d(TAG, "On Destroy Glass()");
         mClient.shutdown();
         super.onDestroy();
     }

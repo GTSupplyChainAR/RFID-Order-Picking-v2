@@ -30,7 +30,8 @@ public class Decoder {
         WAREHOUSE,
         SCAN,
         START,
-        STOP
+        STOP,
+        TAP
     }
 
     public static WarehouseData decodeWarehouseDataJSON(String warehouseDataJSON) throws JSONException {
@@ -153,7 +154,14 @@ public class Decoder {
     }
     //*/
 
-    public static MSG_TAG decodeMSGTAG(byte[] msgBytes){
+    public static int decodeMSGlength(byte[] buffer){
+        byte[] header = new byte[Decoder.HEADER_MSG_LENGTH_SIZE];
+        System.arraycopy(buffer, 0, header, 0, Decoder.HEADER_MSG_LENGTH_SIZE);
+        ByteBuffer wrapped = ByteBuffer.wrap(header);
+        return wrapped.getInt();
+    }
+
+    public static MSG_TAG decodeMSGtag(byte[] msgBytes){
         byte[] tagBytes = new byte[HEADER_MSG_TAG_SIZE];
         System.arraycopy(msgBytes, 0, tagBytes, 0, HEADER_MSG_TAG_SIZE);
 

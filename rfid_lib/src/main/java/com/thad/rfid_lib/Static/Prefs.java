@@ -7,7 +7,7 @@ package com.thad.rfid_lib.Static;
 public class Prefs {
     public static String[] device_names = new String[]{"Google Glass", "XBand #6795", "XBand #62D7"};
     public static final int NUM_DEVICES = 3;
-    public static final boolean QUICK_START = true;
+    public static final boolean QUICK_START = false;
 
     //DEFAULT ADDRESSES
     public static final String PHONE_ADDRESS = "3C:BB:FD:27:A0:1E";
@@ -24,8 +24,18 @@ public class Prefs {
     public static int SCREEN_WIDTH;
     public static final float SCREEN_RATIO = 360f/640f;
     public static final float RACK_SCREEN_PERCENTAGE = .5f;
-    public static final float FADED_RACKS_PERCENTAGE = .15f;
     public static final float RACK_TAG_PERCENTAGE = 0.15f;
     public static final float TITLE_CART_PERCENTAGE = 0.8f;
     public static final int ITEM_IMG_SIZE = 70;
+
+    public static final float FADED_RACKS_PERCENTAGE = .15f;
+    public static final int FADED_GLOW_DURATION = 3000; // in milliseconds
+    public static final boolean REVERSED_FADED_RACKS = false;
+
+    //
+    public static final int ID_DIGIT_NUM = 4;
+
+    //FILENAMES
+    public static final String EXPERIMENT_LOGS_FOLDER = "experiment_logs";
+    public static final String USER_STUDY_FILENAME = "user_study.json";
 }

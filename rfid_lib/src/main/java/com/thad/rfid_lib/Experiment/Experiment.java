@@ -1,10 +1,10 @@
-package com.thad.rfid_lib;
+package com.thad.rfid_lib.Experiment;
 
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import com.thad.rfid_lib.Data.PickingData;
 import com.thad.rfid_lib.Data.PickingOrder;
@@ -13,9 +13,7 @@ import com.thad.rfid_lib.Data.ShelvingUnit;
 import com.thad.rfid_lib.Data.WarehouseData;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UI.ExperimentView;
-import com.thad.rfid_lib.UI.ExperimentViewOverlay;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +39,8 @@ public class Experiment {
     private PickingData pickingData;
 
     private ExperimentView experimentView;
+    private ExperimentLog experimentLog;
+    private boolean isStudyRunning;
 
     private Long startTime;
     private int active_shelving_unit = 0;
@@ -55,13 +55,14 @@ public class Experiment {
         itemsOnHand = new HashMap<String, Integer>();
 
         state = STATES.BLOCKED;
+        isStudyRunning = false;
         mClient = client;
     }
 
 
     //COMMANDS
     public boolean start(){
-        if(state != STATES.READY)
+        if(isActive())
             return false;
 
         print("Experiment Starting...");
@@ -77,12 +78,21 @@ public class Experiment {
             }
         });
 
+        //Log
+        if(!mClient.isGlass() && mClient.isStudyRunning()){
+            experimentLog = mClient.getExperimentLog();
+            experimentLog.setDataVersion(pickingData.getVersion());
+            experimentLog.startLog(this);
+            mClient.autosave();
+            isStudyRunning = true;
+        }
+
         nextOrder();
 
         return true;
     }
     public boolean stop(){
-        if(state != STATES.ACTIVE && state != STATES.ERROR)
+        if(!isActive())
             return false;
 
         print("Experiment Stopping...");
@@ -101,6 +111,10 @@ public class Experiment {
     }
 
     public void reset(){
+        if(isStudyRunning) {
+            isStudyRunning = false;
+            experimentLog.closeLog();
+        }
         startTime = null;
         pickingData.reset();
         itemsOnHand.clear();
@@ -113,16 +127,16 @@ public class Experiment {
             return;
 
         print("New Scan - "+tag);
+        if(isStudyRunning)
+            experimentLog.addLine("SCAN "+tag);
 
         boolean isScanValid = checkErrors(tag);
 
         if(!isScanValid)
             return;
 
-        String letterTag = String.valueOf(tag.charAt(0));
-        int row = Character.getNumericValue(tag.charAt(1));
-        int col = Character.getNumericValue(tag.charAt(2));
-        int[] pos = new int[]{row-1, col-1};
+        String letterTag = Utils.tagToLetter(tag);
+        int[] pos = Utils.tagToPos(tag);
         ShelvingUnit scannedUnit = warehouseData.getUnitByTag(letterTag);
 
 
@@ -132,8 +146,14 @@ public class Experiment {
             experimentView.getRackUI().emptyCell(pos);
             experimentView.checkCell(pos);
             mClient.playSound(Utils.SOUNDS.CLICK);
+            if(isStudyRunning)
+                experimentLog.addLine("VALID_RACK");
         }else{
+            if(isStudyRunning)
+                experimentLog.addLine("VALID_CART "+itemsOnHand.size()+" "+Utils.countInHashmap(itemsOnHand));
+
             itemsOnHand.clear();
+
             int remainingItems = activeOrder.getRemainingCountInShelvingUnit(warehouseData.get(active_shelving_unit));
             if(remainingItems == 0){
                 print("Order Done.");
@@ -141,7 +161,7 @@ public class Experiment {
                 nextOrder();
             }else{
                experimentView.getCartUI().setCellText(pos, ""+remainingItems);
-                mClient.playSound(Utils.SOUNDS.CLICK);
+               mClient.playSound(Utils.SOUNDS.CLICK);
             }
         }
     }
@@ -157,6 +177,8 @@ public class Experiment {
         if(scannedUnit == null || pos[0] >= scannedUnit.getDimensions()[0] || pos[0] < 0
                 || pos[1] >= scannedUnit.getDimensions()[1] || pos[1] < 0) {
             print("Invalid Scan rejected.");
+            if(isStudyRunning)
+                experimentLog.addLine("INVALID");
             return false;
         }
 
@@ -164,7 +186,10 @@ public class Experiment {
         if(!(scannedUnit.getTag()).equals(warehouseData.get(active_shelving_unit).getTag())
                 && !(scannedUnit.getTag()).equals(warehouseData.getCart().getTag())){
             print("Scanned wrong rack.");
+            if(isStudyRunning)
+                experimentLog.addLine("INVALID_RACK");
             mClient.playSound(Utils.SOUNDS.ERROR);
+            experimentView.getRackUI().glow();
             return false;
         }
 
@@ -172,6 +197,9 @@ public class Experiment {
         if(scannedUnit.isCart() && !pickingOrder.getReceiveBinTag().equals(tag)){
             if(itemsOnHand.size() > 0) {
                 print("Items in the wrong receive bin.");
+                if(isStudyRunning)
+                    experimentLog.addLine("INVALID_RECEIVE_BIN "+tag+" "
+                                    +pickingOrder.getReceiveBinTag());
                 state = STATES.ERROR;
                 mClient.playSound(Utils.SOUNDS.ERROR);
                 experimentView.displayOverlay(itemsOnHand, pickingOrder.getReceiveBinTag(), tag);
@@ -180,6 +208,8 @@ public class Experiment {
         }
 
         if(pickingOrder.hadTag(tag)){
+            if(isStudyRunning)
+                experimentLog.addLine("INVALID_ALREADY_PICKED");
             print("Item was already picked.");
             return false;
         }
@@ -188,10 +218,14 @@ public class Experiment {
         if(!scannedUnit.isCart() && !pickingOrder.hasTag(tag)){
             if(!wrongScans.containsKey(tag)){
                 print("Wrong item picked up.");
+                if(isStudyRunning)
+                    experimentLog.addLine("INVALID_ITEM");
                 mClient.playSound(Utils.SOUNDS.ERROR);
                 wrongScans.put(tag, true);
             }else{
                 print("Error corrected.");
+                if(isStudyRunning)
+                    experimentLog.addLine("INVALID_ITEM_CORRECTED");
                 mClient.playSound(Utils.SOUNDS.CLICK);
                 wrongScans.remove(tag);
             }
@@ -211,27 +245,62 @@ public class Experiment {
             activeOrder = pickingData.getTask(0).getOrder(0);
             active_shelving_unit = 0;
             renderActiveOrder();
+
+            if(isStudyRunning) {
+                experimentLog.addLine("EXPERIMENT_STARTED");
+                experimentLog.addLine("TASK_STARTED " + activeOrder.getTaskID()
+                        + ((pickingData.getTask(activeOrder.getTaskID()).isTraining()) ? " TRAINING" : ""));
+                experimentLog.addLine("SUB_ORDER_STARTED " + activeOrder.getID() + "_"
+                        + warehouseData.get(active_shelving_unit).getTag());
+            }
             return;
         }
+
 
         wrongScans.clear();
 
         PickingTask activeTask = activeOrder.getTask();
+        int order_id = activeOrder.getID(), task_id = activeTask.getID();
+        String unitTag = warehouseData.get(active_shelving_unit).getTag();
+        String isTraining = (activeTask.isTraining())?" TRAINING":"";
+
         if(activeOrder.getID() == activeTask.getLastOrder().getID()){
             if(active_shelving_unit >= warehouseData.getShelvingUnitCount()-1){
+                if(isStudyRunning) {
+                    experimentLog.addLine("SUB_ORDER_COMPLETED " + order_id + "_" + unitTag);
+                    experimentLog.addLine("TASK_COMPLETED " + task_id + isTraining);
+                }
                 if(activeTask.getID() == pickingData.getLastTask().getID()){
                     state = STATES.PAUSED;
+                    renderActiveOrder();
+                    if(isStudyRunning)
+                        experimentLog.addLine("EXPERIMENT_ENDED");
                     return;
                 }
                 active_shelving_unit = 0;
                 activeOrder = pickingData.getNextTask(activeTask).getOrder(0);
+                if(isStudyRunning) {
+                    experimentLog.addLine("TASK_STARTED " + activeOrder.getTaskID() +
+                            ((activeOrder.isTraining()) ? " TRAINING" : ""));
+                    experimentLog.addLine("SUB_ORDER_STARTED " + activeOrder.getID() + "_" +
+                            warehouseData.get(0).getTag());
+                }
             }else{
+                if(isStudyRunning)
+                    experimentLog.addLine("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
                 active_shelving_unit ++;
                 activeOrder = activeTask.getOrder(0);
+                if(isStudyRunning)
+                    experimentLog.addLine("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+
+                                warehouseData.get(active_shelving_unit).getTag());
             }
             experimentView.changeShelvingUnit(active_shelving_unit);
         }else{
+            if(isStudyRunning)
+                experimentLog.addLine("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
             activeOrder = activeTask.getNextOrder(activeOrder);
+            if(isStudyRunning)
+                experimentLog.addLine("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+unitTag);
         }
 
         int remainingItems = activeOrder.getRemainingCountInShelvingUnit(warehouseData.get(active_shelving_unit));
@@ -287,6 +356,8 @@ public class Experiment {
     public void errorFixed(){
         if(state != STATES.ERROR)
             return;
+        if(isStudyRunning)
+            experimentLog.addLine("ERROR_CORRECTED");
         state = STATES.ACTIVE;
         experimentView.hideOverlay();
         experimentView.getCartUI().emptyAll();
@@ -295,7 +366,7 @@ public class Experiment {
     }
 
     //UTILS
-    public boolean isActive(){return state == STATES.ACTIVE || state == STATES.ERROR;}
+    public boolean isActive(){return state == STATES.ACTIVE || state == STATES.ERROR || state == STATES.PAUSED;}
     public Long getElapsedTime(){
         if(startTime == null)
             return null;
@@ -314,5 +385,10 @@ public class Experiment {
     public PickingData getPickingData(){return pickingData;}
     public boolean isGlass(){return mClient.isGlass();}
     public void onFakeScan(String scan){mClient.onFakeScan(scan);}
+    public void onWrongScan(){
+        String fakeScan = warehouseData.get(
+                (active_shelving_unit+1)%warehouseData.getShelvingUnitCount()).getTag()+"11";
+        onFakeScan(fakeScan);
+    }
 
 }

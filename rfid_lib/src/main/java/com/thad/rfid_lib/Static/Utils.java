@@ -6,13 +6,18 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,6 +57,29 @@ public class Utils {
         return (int) ((dp)*context.getResources().getDisplayMetrics().density +0.5f);
     }
 
+    public static String getDateInFormat(){
+        Date date = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+        return df.format(date);
+    }
+
+    /* Checks if external storage is available for read and write */
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static int countInHashmap(HashMap<String, Integer> map){
+        int count = 0;
+        for(String key : map.keySet()){
+            count += map.get(key);
+        }
+        return count;
+    }
+
     public static double distance(int[] p1, int[] p2){
         return Math.sqrt(Math.pow(p1[0]-p2[0],2)+Math.pow(p1[1]-p2[1],2));
     }
@@ -67,7 +95,9 @@ public class Utils {
         }
     }
 
-    public static String formatTimestamp(Long time){
+    public static String formatTimestamp(Long time){return formatTimestamp(time, false);}
+    public static String formatTimestamp(Long time, boolean showDetail){
+        int subsecs = (int)(60*time/1000.)%60;
         int seconds = (int) (time / 1000)%60;
         int minutes = ((int)(time/1000)/60)%60;
         int hours = (int)(time/1000)/60/60;
@@ -81,7 +111,13 @@ public class Utils {
         String secondsStr = Integer.toString(seconds);
         if(seconds < 10) secondsStr = "0"+secondsStr;
 
-        return hoursStr+":"+minutesStr+":"+secondsStr;
+        String subsecsStr = Integer.toString(subsecs);
+        if(subsecs < 10) subsecsStr = "0"+subsecsStr;
+
+        String timestamp = hoursStr+":"+minutesStr+":"+secondsStr;
+        if(showDetail)
+            timestamp += ":"+subsecsStr;
+        return timestamp;
     }
 
     public static void changeDrawableColor(Drawable drawable, int color_resource){

@@ -35,11 +35,9 @@ public class CellDrawable {
         border_radii = (int) context.getResources().getDimension(R.dimen.corners);
 
         borderDrawable = new GradientDrawable();
-        borderDrawable.setShape(GradientDrawable.RECTANGLE);
         borderDrawable.setStroke(border_width, context.getResources().getColor(color));
 
         fillDrawable = new GradientDrawable();
-        fillDrawable.setShape(GradientDrawable.RECTANGLE);
         fillDrawable.setColor(context.getResources().getColor(color));
 
         setCornerRadii(border_radii);
@@ -49,13 +47,6 @@ public class CellDrawable {
         greenCheck = context.getResources().getDrawable(R.drawable.green_check);
 
         empty();
-    }
-
-    private void setCornerRadii(int corner_radius){
-        borderDrawable.setCornerRadii(new float[]{corner_radius, corner_radius, corner_radius, corner_radius,
-                corner_radius, corner_radius, corner_radius, corner_radius});
-        fillDrawable.setCornerRadii(new float[]{corner_radius, corner_radius, corner_radius, corner_radius,
-                corner_radius, corner_radius, corner_radius, corner_radius});
     }
 
     public void fill(){
@@ -130,7 +121,13 @@ public class CellDrawable {
                 layerDrawable.setLayerInset(1, fill_padding, fill_padding, fill_padding, fill_padding);
             }
         });
+    }
 
+    private void setCornerRadii(int corner_radius){
+        borderDrawable.setCornerRadii(new float[]{corner_radius, corner_radius, corner_radius, corner_radius,
+                corner_radius, corner_radius, corner_radius, corner_radius});
+        fillDrawable.setCornerRadii(new float[]{corner_radius, corner_radius, corner_radius, corner_radius,
+                corner_radius, corner_radius, corner_radius, corner_radius});
     }
 
     public Drawable getDrawable(){

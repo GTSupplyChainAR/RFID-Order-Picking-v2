@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import com.google.android.glass.media.Sounds;
 import com.thad.rfid_lib.Data.PickingData;
 import com.thad.rfid_lib.Data.WarehouseData;
-import com.thad.rfid_lib.Experiment;
-import com.thad.rfid_lib.ExperimentListener;
+import com.thad.rfid_lib.Experiment.Experiment;
+import com.thad.rfid_lib.Experiment.ExperimentListener;
+import com.thad.rfid_lib.Experiment.ExperimentLog;
+import com.thad.rfid_lib.FileIO;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.Communications.CommunicationHandler;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
@@ -30,12 +32,14 @@ public class GlassClient implements ExperimentListener {
 
     private Experiment mExperiment;
 
+    private boolean onDestroyed = false;
+
     public GlassClient(Context context){
         mContext = context;
 
         mUI = new UserInterfaceHandler(this);
         mCommHandler = new CommunicationHandler(this);
-        mFileIO = new FileIO(this);
+        mFileIO = new FileIO(mContext);
 
         mExperiment = new Experiment(this);
 
@@ -45,6 +49,7 @@ public class GlassClient implements ExperimentListener {
     }
 
     public void shutdown(){
+        onDestroyed = true;
         mCommHandler.shutdown();
     }
 
@@ -58,22 +63,41 @@ public class GlassClient implements ExperimentListener {
 
     public void toggleExperiment(){
         if(mExperiment.isActive()){
-            boolean canStop = mExperiment.stop();
-            if(canStop) {
-                Log.d(TAG, "Stopping Experiment.");
-                mUI.onExperimentToggled();
-            }
+            stopExperiment();
         }else{
-            boolean canStart = mExperiment.start();
-            if(canStart){
-                Log.d(TAG, "Starting Experiment.");
-                mUI.onExperimentToggled();
-            }
+            startExperiment();
+        }
+    }
+    public void startExperiment(){
+        boolean canStart = mExperiment.start();
+        if(canStart){
+            Log.d(TAG, "Starting Experiment.");
+            mUI.onExperimentStarted();
+        }
+    }
+    public void stopExperiment(){
+        boolean canStop = mExperiment.stop();
+        if(canStop) {
+            Log.d(TAG, "Stopping Experiment.");
+            mUI.onExperimentStopped();
         }
     }
 
     public void onTap(){
         mExperiment.errorFixed();
+        mCommHandler.sendTap();
+    }
+
+    public void onConnected(){
+        mUI.onConnected();
+    }
+
+    public void onConnectionLost() {
+        stopExperiment();
+        if(!onDestroyed) {
+            mUI = new UserInterfaceHandler(this);
+            mCommHandler = new CommunicationHandler(this);
+        }
     }
 
     public void onNewScan(String tag){
@@ -89,6 +113,10 @@ public class GlassClient implements ExperimentListener {
     public ViewGroup getExperimentContainer() {
         return mUI.getExperimentContainer();
     }
+    public boolean isStudyRunning() { return false; }
+    public ExperimentLog getExperimentLog() { return null; }
+    public void autosave(){}
+
     public boolean isGlass(){return true;}
     public void onFakeScan(String scan){onNewScan(scan);}
     public void playSound(Utils.SOUNDS sound){

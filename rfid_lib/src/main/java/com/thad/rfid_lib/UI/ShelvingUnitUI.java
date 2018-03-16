@@ -1,11 +1,16 @@
 package com.thad.rfid_lib.UI;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.DisplayMetrics;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -13,11 +18,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.thad.rfid_lib.Data.ShelvingUnit;
-import com.thad.rfid_lib.Experiment;
+import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.R;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -44,8 +50,12 @@ public class ShelvingUnitUI extends LinearLayout {
 
     private ShelvingUnit shelvingUnit;
     private CellUI[][] cellUIs;
+    private ArrayList<FadedCell> fadedCells;
+    private Drawable large_red_cross;
+    private ObjectAnimator animator;
 
     private HashMap<NEIGHBOR, Boolean> neighbors;
+    private int numNeighbors;
 
     public ShelvingUnitUI(Experiment experiment, ShelvingUnit shelvingUnit){
         super(experiment.getContext());
@@ -55,6 +65,7 @@ public class ShelvingUnitUI extends LinearLayout {
         neighbors = new HashMap<NEIGHBOR, Boolean>();
         neighbors.put(NEIGHBOR.LEFT, false);
         neighbors.put(NEIGHBOR.RIGHT, false);
+        numNeighbors = 0;
     }
 
     public void generateUI(){
@@ -74,6 +85,8 @@ public class ShelvingUnitUI extends LinearLayout {
         this.setLayoutParams(new LayoutParams(width, height));
 
         cell_width = (int)((1-Prefs.RACK_TAG_PERCENTAGE)*width) / shelvingUnit.getDimensions()[1];
+        if(numNeighbors == 0)
+            cell_width = (int)(width) / shelvingUnit.getDimensions()[1];
         cell_height = (int)((1-Prefs.FADED_RACKS_PERCENTAGE)*height) / shelvingUnit.getDimensions()[0];
         if(cell_height >= cell_width)
             cell_height = cell_width;
@@ -86,11 +99,26 @@ public class ShelvingUnitUI extends LinearLayout {
         all_neighs_layout.setLayoutParams(new LayoutParams(MP, MP, Prefs.RACK_TAG_PERCENTAGE));
         all_neighs_layout.setOrientation(HORIZONTAL);
 
+        RelativeLayout relativeLayout = new RelativeLayout(context);
+        relativeLayout.setLayoutParams(new RelativeLayout.LayoutParams(WC, WC));
         LinearLayout main_rack = new LinearLayout(context);
         main_rack.setLayoutParams(new LayoutParams(WC, WC));//MP, MP, Prefs.FADED_RACKS_PERCENTAGE));
         main_rack.setOrientation(VERTICAL);
+        relativeLayout.addView(main_rack);
 
+        ImageView overlayX = new ImageView(context);
+        RelativeLayout.LayoutParams layoutX = new RelativeLayout.LayoutParams(
+                        (int)(width*(1-Prefs.FADED_RACKS_PERCENTAGE)*0.8),
+                        (int)(height*(1-Prefs.RACK_TAG_PERCENTAGE)*0.6));
+        layoutX.addRule(RelativeLayout.CENTER_IN_PARENT);
+        overlayX.setLayoutParams(layoutX);
+        large_red_cross = context.getResources().getDrawable(R.drawable.red_x);
+        large_red_cross.setAlpha(0);
+        overlayX.setImageDrawable(large_red_cross);
 
+        relativeLayout.addView(overlayX);
+
+        fadedCells = new ArrayList<FadedCell>();
 
         int cnt = 0;
         for(NEIGHBOR neighbor : NEIGHBOR.values()){
@@ -98,12 +126,18 @@ public class ShelvingUnitUI extends LinearLayout {
             neigh_layout.setLayoutParams(new LayoutParams(WC, WC));//MP, MP, 1-Prefs.FADED_RACKS_PERCENTAGE));
             neigh_layout.setOrientation(VERTICAL);
             createViewsFadedNeighbor(neighbor, neigh_layout);
+            neigh_layout.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    experiment.onWrongScan();
+                }
+            });
 
             if(neighbors.get(neighbor))
                 all_neighs_layout.addView(neigh_layout);
 
             if(cnt == 0)
-                all_neighs_layout.addView(main_rack);
+                all_neighs_layout.addView(relativeLayout);
             cnt++;
         }
 
@@ -201,30 +235,58 @@ public class ShelvingUnitUI extends LinearLayout {
     //FADED NEIGHBORS
     public void addFadedNeighbor(NEIGHBOR neighbor){
         neighbors.put(neighbor, true);
+        numNeighbors ++;
     }
 
     private void createViewsFadedNeighbor(NEIGHBOR neighbor, ViewGroup container){
         int[] dims = shelvingUnit.getDimensions();
 
-        int faded_width = cell_width;
-        for(NEIGHBOR neigh : neighbors.keySet())
-            if(neighbors.get(neigh))
-                faded_width = faded_width/2;
+        int faded_width = cell_width/2;
+        if(numNeighbors != 0) faded_width = faded_width/numNeighbors;
 
         for(int r = 0 ; r < dims[0] ; r++){
-            ImageView cell = new ImageView(context);
+            //ImageView cell = new ImageView(context);
+            FadedCell fadedCell = new FadedCell(context, neighbor);
             LayoutParams lp_cell = new LayoutParams(faded_width, cell_height);
             int margins = Utils.dp_to_pixels(context, 1.5f);
             lp_cell.setMargins(margins, margins, margins, margins);
-            cell.setLayoutParams(lp_cell);
+            fadedCell.setLayoutParams(lp_cell);
+            //cell.setLayoutParams(lp_cell);
 
-            if(neighbor == NEIGHBOR.RIGHT)
-                cell.setBackground(context.getResources().getDrawable(R.drawable.gray_fade_right));
-            else
-                cell.setBackground(context.getResources().getDrawable(R.drawable.gray_fade_left));
+            fadedCells.add(fadedCell);
+            //cell.setImageResource(fadedCellDrawable.getDrawable());
 
-            container.addView(cell);
+            container.addView(fadedCell);
         }
+    }
+
+    public void glow(){
+        for(FadedCell fadedCell : fadedCells){
+            fadedCell.glow();
+        }
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                large_red_cross.setAlpha(255);
+                animator = ObjectAnimator.ofPropertyValuesHolder(large_red_cross, PropertyValuesHolder.ofInt("alpha", 0));
+                animator.setTarget(large_red_cross);
+                animator.setDuration(Prefs.FADED_GLOW_DURATION);
+                animator.start();
+            }
+        });
+    }
+
+    public void resetAnimations(){
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                large_red_cross.setAlpha(0);
+                animator = ObjectAnimator.ofPropertyValuesHolder(large_red_cross, PropertyValuesHolder.ofInt("alpha", 0));
+                animator.setTarget(large_red_cross);
+                animator.setDuration(1);//Prefs.FADED_GLOW_DURATION);
+                animator.start();//*/
+            }
+        });
     }
 
     //COMMANDS
@@ -244,5 +306,8 @@ public class ShelvingUnitUI extends LinearLayout {
             }
         }
     }
+
+
+
 
 }

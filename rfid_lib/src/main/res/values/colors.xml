@@ -6,4 +6,6 @@
     <color name="blue">#4444FF</color>
     <color name="black">#000000</color>
     <color name="dark_gray">#333333</color>
+    <color name="faded_rack_gray">#F666</color>
+    <color name="faded_rack_fill_red">#FF00</color>
 </resources>

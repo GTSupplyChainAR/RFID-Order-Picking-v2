@@ -70,33 +70,38 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/connect"
-            android:text="Re-Connect"
-            android:layout_width="match_parent"
+            android:text="Connect"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onConnect"
-            android:layout_weight="1"/>
+            android:onClick="onConnect"/>
         <Button
-            android:id="@+id/sync_data"
-            android:text="SYNC DATA"
-            android:layout_width="match_parent"
+            android:id="@+id/disconnect"
+            android:text="Disconnect"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onSyncData"
-            android:layout_weight="1"/>
+            android:onClick="onDisconnect"/>
+        <Button
+            android:id="@+id/log"
+            android:text="LOG"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onLogClicked"/>
         <Button
             android:id="@+id/experiment_button"
             android:text="START"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onExperimentClicked"
-            android:layout_weight="1"/>
+            android:onClick="onExperimentClicked"/>
     </LinearLayout>
 
+    <!-- Username and ID -->
     <TextView
-        android:id="@+id/timer"
+        android:id="@+id/username"
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -104,7 +109,37 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textAlignment="center"
-        android:text="00:00:00"/>
+        android:text="User Name - ID"/>
+
+    <!-- TIMER & PAUSE button -->
+    <LinearLayout
+        android:id="@+id/timerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textAlignment="center"
+            android:text="00:00:00"/>
+
+        <ImageView
+            android:id="@+id/pause"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/white_pause"/>
+
+    </LinearLayout>
+
+
     <!--
           EXPERIMENT VIEW
                             -->

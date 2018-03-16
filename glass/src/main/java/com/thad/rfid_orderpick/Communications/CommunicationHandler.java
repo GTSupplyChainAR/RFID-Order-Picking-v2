@@ -30,14 +30,16 @@ public class CommunicationHandler {
     public CommunicationHandler(GlassClient client){
         mClient = client;
         mServer = new ServerBluetooth(this);
-        mServer.setDeviceToListen(Prefs.PHONE_ADDRESS);
+        mServer.setAddress(Prefs.PHONE_ADDRESS, Prefs.GLASS_UUID);
 
         mServer.listen();
     }
 
     public void shutdown(){
-        mServer.stop();
+        mServer.disconnect();
     }
+
+    public void sendTap(){mServer.sendMessage(Decoder.MSG_TAG.TAP, "");}
 
 
     public void onMessageReceived(Decoder.MSG_TAG msgTag, String msgString) {
@@ -66,14 +68,22 @@ public class CommunicationHandler {
                 mClient.onNewScan(msgString);
                 break;
             case START:
-                mClient.toggleExperiment();
+                Log.d(TAG, "Received order to start experiment!");
+                mClient.startExperiment();
                 break;
             case STOP:
-                mClient.toggleExperiment();
+                Log.d(TAG, "Received order to stop experiment!");
+                mClient.stopExperiment();
                 break;
         }
     }
 
+    public void onConnectionLost(){
+        mClient.onConnectionLost();
+    }
+
+
+    public void onConnected(){mClient.onConnected();}
 
     public void print(String msg){
         mClient.mLog(msg);

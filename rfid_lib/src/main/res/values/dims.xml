@@ -9,4 +9,5 @@
     <dimen name="glass_tag_text">9dp</dimen>
     <dimen name="glass_rack_cell_text">10dp</dimen>
     <dimen name="glass_cart_cell_text">12dp</dimen>
+    <dimen name="button_text_size">10sp</dimen>
 </resources>

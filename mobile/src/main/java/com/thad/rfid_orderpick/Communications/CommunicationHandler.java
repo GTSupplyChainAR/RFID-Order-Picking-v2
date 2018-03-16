@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.thad.rfid_lib.Decoder;
-import com.thad.rfid_lib.Experiment;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_orderpick.MobileClient;
 
@@ -72,31 +71,26 @@ public class CommunicationHandler {
         editor.commit();
     }
 
-    public void reconnect() {
+    public void connect() {
         Log.d(TAG, "Attempting to connect.");
 
         if (!mGlassBT.isConnected())
             mGlassBT.connect();
 
         for (int i = 0; i < 2; i++) {
-            mXBands[i].disconnect();
-            mXBands[i].connect();
+            if(!mXBands[i].isConnected())
+                mXBands[i].connect();
+        }
+    }
+    public void disconnect() {
+        Log.d(TAG, "Disconnecting.");
+        mGlassBT.disconnect();
+        for (int i = 0; i < 2; i++) {
+                mXBands[i].disconnect();
         }
     }
 
-    public void shutdown() {
-        mGlassBT.disconnect();
-        for (int i = 0; i < 2; i++)
-            mXBands[i].disconnect();
-    }
     //END OF COMMANDS
-
-    public void send(Experiment experiment){
-        mClient.mLog("Sending warehouse data...");
-        mGlassBT.sendMessage(Decoder.MSG_TAG.WAREHOUSE, experiment.getWarehouseData().getJSON());
-        mClient.mLog("Sending picking data...");
-        mGlassBT.sendMessage(Decoder.MSG_TAG.PICKDATA, experiment.getPickingData().getJSON());
-    }
 
     public void sendScan(String scan){
         mGlassBT.sendMessage(Decoder.MSG_TAG.SCAN, scan);
@@ -141,6 +135,18 @@ public class CommunicationHandler {
         }
         connState = new_connStates;
         return connState;
+    }
+
+
+    public void onMessageReceived(Decoder.MSG_TAG msgTag, String msgString) {
+        switch (msgTag){
+            case TAP:
+                mClient.onGlassTapped();
+                break;
+            case STOP:
+                mClient.stopExperiment();
+                break;
+        }
     }
     //END OF GETTERS
 }

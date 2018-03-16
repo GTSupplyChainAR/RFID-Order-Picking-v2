@@ -1,4 +1,4 @@
-package com.thad.rfid_lib;
+package com.thad.rfid_lib.Experiment;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -13,6 +13,11 @@ public interface ExperimentListener {
 
     Context getContext();
     ViewGroup getExperimentContainer();
+
+    boolean isStudyRunning();
+    ExperimentLog getExperimentLog();
+    void autosave();
+
     boolean isGlass();
 
     void onFakeScan(String scan);

@@ -1,0 +1,32 @@
+{
+    "subjects":[
+        {
+            "id":1,
+            "name":"Theo Panagiotopoulos",
+            "logs":[
+                {
+                    "log_id":1,
+                    "data_version":"1.0",
+                    "date":"14-Mar-2018 22:44:29",
+                    "duration":"01:25:55",
+                    "log_filename":"theo_1_1.txt"
+                }
+            ]
+        },
+        {
+            "id":2,
+            "name":"Charu Thomas",
+            "logs":[]
+        },
+        {
+            "id":3,
+            "name":"Sarthak Srinivas",
+            "logs":[]
+        },
+        {
+            "id":4,
+            "name":"Pramod Kothrapali",
+            "logs":[]
+        }
+    ]
+}

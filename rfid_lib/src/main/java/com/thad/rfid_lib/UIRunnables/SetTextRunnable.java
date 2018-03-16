@@ -1,6 +1,7 @@
 package com.thad.rfid_lib.UIRunnables;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -17,7 +18,10 @@ public class SetTextRunnable implements Runnable{
     }
     @Override
     public void run() {
-        if(view instanceof TextView)
+        if(view instanceof Button){
+            ((Button)view).setText(text);
+        }else if (view instanceof TextView){
             ((TextView)view).setText(text);
+        }
     }
 }

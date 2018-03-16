@@ -3,8 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    android:id="@+id/experiment_container">
+    android:background="@color/black">
 
     <!--===================
     ===== CONSOLE LOG =====
@@ -16,7 +15,8 @@
         android:id="@+id/glassLogLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -40,11 +40,33 @@
 
     </LinearLayout>
 
-    <!--
-    <com.thad.rfid_orderpick.UI.ExperimentView
-        android:id="@+id/experiment_view"
+    <!--===================
+    ==== USER FRIENDLY ====
+    =======================
+    This is hidden during
+    experiment runtime  -->
+    <TextView
+        android:id="@+id/user_friendly_log"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"/>-->
+        android:background="#bbb"
+        android:gravity="center"
+        android:fontFamily="monospace"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:text="AWAITING CONNECTION"/>
+
+
+
+    <!--
+          EXPERIMENT VIEW
+                            -->
+    <LinearLayout
+        android:id = "@+id/experiment_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+    </LinearLayout>
 
 </LinearLayout>

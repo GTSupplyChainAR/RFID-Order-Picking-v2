@@ -1,5 +1,6 @@
-package com.thad.rfid_orderpick;
+package com.thad.rfid_lib;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.thad.rfid_lib.Data.PickingData;
@@ -20,10 +21,10 @@ public class FileIO {
     private static final String pickDataFileName = "pick_tasks.json";
 
 
-    private static GlassClient mClient;
+    private Context context;
 
-    public FileIO(GlassClient client){
-        mClient = client;
+    public FileIO(Context context){
+        this.context = context;
     }
 
 
@@ -51,7 +52,7 @@ public class FileIO {
 
 
     private String loadJSON(String fname) throws IOException {
-        InputStream is = mClient.getContext().getAssets().open(fname);
+        InputStream is = context.getAssets().open(fname);
         int size = is.available();
         byte[] buffer = new byte[size];
         is.read(buffer);

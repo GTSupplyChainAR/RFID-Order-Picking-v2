@@ -1,8 +1,10 @@
 package com.thad.rfid_orderpick;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.Button;
 
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
@@ -21,22 +24,10 @@ import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
 
 public class MobileMainActivity extends AppCompatActivity{
-    private static final String TAG = "RFID|MainActivity";
+    private static final String TAG = "|MainActivity|";
 
-    private enum MSG_CODES { DATA, SCAN, GAME, SPLIT }
-
-    private static final boolean QUICK_START = false;
     private static final String PREFS_NAME = "PREFS";
 
-    public static UserInterfaceHandler mUI;
-
-
-    private static ClientBluetooth mGlassInterface;
-    //private static String glass_bluetooth_addrs;
-    private static XBandInterface[] mXBandInterface;
-    //private static String[] xband_bluetooth_addrs = new String[2];
-
-    private static FileIO mFileIO;
     public static MobileClient mClient;
 
     @Override
@@ -59,7 +50,6 @@ public class MobileMainActivity extends AppCompatActivity{
 
         mClient = new MobileClient(this);
 
-
     }
 
     @Override
@@ -81,10 +71,6 @@ public class MobileMainActivity extends AppCompatActivity{
                 != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
         }
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-        }
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
                 != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH}, 0);
@@ -93,152 +79,23 @@ public class MobileMainActivity extends AppCompatActivity{
                 != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_ADMIN}, 0);
         }
+        /*
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_PRIVILEGED)
                 != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_PRIVILEGED}, 0);
+        }*/
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
         }
     }
 
 
-    public void onConnect(View view){
-        mClient.onConnect();
-    }
-    public void onSyncData(View view){ mClient.onSyncData(); }
+    public void onConnect(View view){Log.d(TAG, "onConnectClicked"); mClient.onConnect(); }
+    public void onDisconnect(View view){ Log.d(TAG, "onDisconnectClicked"); mClient.onDisconnect(); }
     public void onExperimentClicked(View view){ Log.d(TAG, "onExperimentClicked"); mClient.onExperimentClicked(); }
+    public void onLogClicked(View view){Log.d(TAG, "onLogClicked"); mClient.onLogClicked();}
 
 
 
-
-
-
-
-    /*
-    public void onConnect(View view){
-        reconnect();
-    }
-    public void reconnect(){
-        boolean[] states = checkConnections();
-
-        mLog("Reconnecting with "+mUI.device_names[0]+"...");
-        mGlassInterface = new ClientBluetooth(this);
-        mGlassInterface.connect();
-
-        for(int i = 0 ; i < 2 ; i++){
-            if(!states[i+1]) {
-                mLog("Attempting to connect with "+mUI.device_names[i+1]+"...");
-                mXBandInterface[i] = new XBandInterface(this, xband_bluetooth_addrs[i], i);
-                mXBandInterface[i].connect();
-            }
-        }
-    }
-
-    public void onSyncData(View view){
-        syncData();
-    }
-    public void syncData(){
-        boolean hasExperimentData = mFileIO.loadExperimentData();
-        boolean hasPickData = mFileIO.loadPickData();
-
-        if(hasExperimentData && hasPickData){
-            mLog("Loaded data from memory.");
-            boolean[] states = checkConnections();
-            if(states[0]){
-                String msg = MSG_CODES.DATA.toString() + mFileIO.getExperimentJSON() + MSG_CODES.SPLIT.toString() + mFileIO.getPickDataJSON();
-                mGlassInterface.sendString(msg);
-                mLog("Data sent to Glass.");
-            }else{
-                mLog("Failed to send data to Glass.");
-            }
-        }else{
-            mLog("Did not find data in memory, failed to get from server");
-        }
-    }
-
-    public void onExperimentClicked(View view){
-
-        if(!mBrain.isExperimentRunning()){
-            boolean startedExperiment = mBrain.startExperiment();
-
-            mGlassInterface.sendString(MSG_CODES.GAME.toString()+"START");
-
-            if(startedExperiment){
-                mLog("Initiating Experiment.");
-            }else{
-                mLog("Experiment is not yet ready to start.");
-            }
-        }else{
-            mBrain.stopExperiment();
-            mGlassInterface.sendString(MSG_CODES.GAME.toString()+"STOP");
-            mLog("Stopping the Experiment.");
-        }
-    }
-
-    public void onNewRFIDScan(String scan, int strength){
-        mLog("New RFID Scan: "+scan+", Strength: "+strength);
-        mGlassInterface.sendString(MSG_CODES.SCAN.toString()+scan);
-        mUI.onNewScan(scan);
-    }
-
-    public void update_battery(int index, float v){
-        mUI.update_battery(index+1, v);
-    }
-
-    public void update_connections(){
-        boolean[] states = checkConnections();
-        for(int i = 0 ; i < 3 ; i++){
-            mUI.update_connection(i, states[i]);
-        }
-    }
-
-    public boolean[] checkConnections() {
-        boolean[] states = {false, false, false};
-        if (mGlassInterface != null && mGlassInterface.isConnected()){
-            states[0] = true;
-        }
-        if(mXBandInterface != null && mXBandInterface.length == 2) {
-            states[1] =  mXBandInterface[0].isConnected();
-            states[2] =  mXBandInterface[1].isConnected();
-        }
-        //Log.d(TAG, "Connection States -> "+states[0]+", "+states[1]+", "+states[2]);
-        return states;
-    }
-
-
-    public void editAddress(int index, String new_address){
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        String pref_name = "";
-        switch (index){
-            case 0:
-                pref_name = "glass_bluetooth_addrs";
-                glass_bluetooth_addrs = new_address;
-                break;
-            case 1:
-                pref_name = "xband_bluetooth_addrs1";
-                xband_bluetooth_addrs[0] = new_address;
-                break;
-            case 2:
-                pref_name = "xband_bluetooth_addrs2";
-                xband_bluetooth_addrs[1] = new_address;
-                break;
-        }
-        editor.putString(pref_name, new_address);
-        editor.commit();
-        mUI.updateXBandNames();
-    }
-
-    public String getAddress(int index){
-        switch(index){
-            case 0: return glass_bluetooth_addrs;
-            case 1: return xband_bluetooth_addrs[0];
-            case 2: return xband_bluetooth_addrs[1];
-        }
-        mLog("There is no address for a device with index of "+index);
-        return null;
-    }
-
-    public void mLog(String str){mUI.mLog(str);}
-    public void mLogRaw(String str){mUI.mLogRaw(str);}
-
-    */
 }

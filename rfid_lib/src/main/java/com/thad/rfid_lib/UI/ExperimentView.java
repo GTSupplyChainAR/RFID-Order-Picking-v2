@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.thad.rfid_lib.Data.PickingOrder;
 import com.thad.rfid_lib.Data.ShelvingUnit;
 import com.thad.rfid_lib.Data.WarehouseData;
-import com.thad.rfid_lib.Experiment;
+import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UIRunnables.AddViewRunnable;
@@ -59,10 +59,6 @@ public class ExperimentView extends LinearLayout {
         this.setOrientation(VERTICAL);
     }
 
-    public void closeOverlay(){
-        overlay.setVisibility(GONE);
-        overlay.removeAllViews();
-    }
 
     public void displayOverlay(HashMap<String, Integer> itemsOnHand, String correctBinTag, String wrongBinTag){
         ((Activity)context).runOnUiThread(new Runnable() {
@@ -126,6 +122,7 @@ public class ExperimentView extends LinearLayout {
         addFadedNeighbors(rackUI);
 
         rackUI.generateUI();
+        rackUI.resetAnimations();
         return rackUI;
     }
 

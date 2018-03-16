@@ -1,7 +1,6 @@
 package com.thad.rfid_lib.UI;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -13,17 +12,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.thad.rfid_lib.Data.ShelvingUnit;
-import com.thad.rfid_lib.Experiment;
+import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.R;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UIRunnables.AddViewRunnable;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 /**
  * Created by theo on 3/6/18.

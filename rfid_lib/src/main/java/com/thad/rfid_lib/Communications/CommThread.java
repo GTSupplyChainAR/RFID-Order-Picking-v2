@@ -1,4 +1,4 @@
-package com.thad.rfid_orderpick.Communications;
+package com.thad.rfid_lib.Communications;
 
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
@@ -16,57 +16,57 @@ import java.nio.ByteBuffer;
  * Created by theo on 3/5/18.
  */
 
-public class ServerCommThread {
+public class CommThread extends Thread{
     private static final String TAG = "|ServerCommThread|";
 
-    private ServerBluetooth server;
+    private BluetoothListener btListener;
 
-    private final BluetoothSocket socket;
+    private BluetoothSocket socket;
     private InputStream connectedInputStream;
     private OutputStream connectedOutputStream;
 
+    private boolean isRunning;
+
     private byte[] buffer; // mmBuffer store for the stream
 
-    public ServerCommThread(ServerBluetooth server, BluetoothSocket socket) {
-        this.server = server;
+    public CommThread(BluetoothListener btListener, BluetoothSocket socket) {
+        this.btListener = btListener;
         this.socket = socket;
+        init();
     }
 
-    public void start(){
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
+    public void init(){
         try {
-            inputStream = new DataInputStream(socket.getInputStream());
-            outputStream = new DataOutputStream(socket.getOutputStream());
-
+            connectedInputStream = new DataInputStream(socket.getInputStream());
+            connectedOutputStream = new DataOutputStream(socket.getOutputStream());
             Log.d(TAG, "I/O Streams created.");
-            Log.d(TAG, "You are connected!");
-            connectedInputStream = inputStream;
-            connectedOutputStream = outputStream;
         } catch (IOException e) {
-            Log.e(TAG, "Error occurred when creating server streams.");
+            Log.e(TAG, "Failed to create the I/O streams.", e);
+            cancel();
         }
-        run();
     }
 
     public void run() {
+        if(connectedInputStream == null)
+            return;
+
         buffer = new byte[1024];
         int numBytes; // bytes returned from read()
         byte[] data = null;
         int current_bytes = 0;
         int total_bytes = 0;
+        isRunning = true;
+        btListener.onThreadConnected();
+
+        Log.d(TAG, "Communication Thread is running...");
 
         // Keep listening to the InputStream until an exception occurs.
-        while (true) {
+        while (isRunning) {
             try {
                 while((numBytes = connectedInputStream.read(buffer)) != 1) {
                     //Log.d(TAG, "New packet of "+numBytes +" bytes.");
                     if (data == null) {
-                        byte[] header = new byte[Decoder.HEADER_MSG_LENGTH_SIZE];
-                        System.arraycopy(buffer, 0, header, 0, Decoder.HEADER_MSG_LENGTH_SIZE);
-                        ByteBuffer wrapped = ByteBuffer.wrap(header);
-                        total_bytes = wrapped.getInt();
-                        Log.d(TAG, "Header -> "+total_bytes +" bytes.");
+                        total_bytes = Decoder.decodeMSGlength(buffer);
                         current_bytes = numBytes - Decoder.HEADER_MSG_LENGTH_SIZE;
                         data = new byte[current_bytes];
                         System.arraycopy(buffer, Decoder.HEADER_MSG_LENGTH_SIZE, data, 0, current_bytes);
@@ -77,7 +77,6 @@ public class ServerCommThread {
                         data = new_data;
                         current_bytes += numBytes;
                     }
-                    //Log.d(TAG, "Data -> "+data.length);
 
                     if(current_bytes >= total_bytes) {
                         break;
@@ -85,18 +84,14 @@ public class ServerCommThread {
                 }
                 Log.d(TAG, "Received a total of "+total_bytes +" bytes.");
 
-                server.onBytesReceived(data);
+                btListener.onBytesReceived(data);
                 total_bytes = 0;
                 current_bytes = 0;
                 data = null;
             } catch (IOException e) {
                 Log.e(TAG, "Input stream was disconnected.");
-                try {
-                    connectedInputStream.close();
-                } catch (IOException e1) {
-                    Log.e(TAG, "Could not close the stream.");
-                }
-                break;
+                isRunning = false;
+                cancel();
             }
         }
     }
@@ -105,21 +100,43 @@ public class ServerCommThread {
         try {
             connectedOutputStream.write(bytes);
         } catch (IOException e) {
-            Log.e(TAG, "Error occurred when sending data.");
+            Log.e(TAG, "Failed to send data.");
+            cancel();
         }
     }
 
     // Call this method from the main activity to shut down the connection.
     public void cancel() {
-        try {
-            connectedOutputStream.close();
-            connectedInputStream.close();
-            socket.close();
-            Log.d(TAG, "Connection closed");
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Could not close connection");
+        Log.d(TAG, "Canceling communications thread.");
+        isRunning = false;
+        if(connectedInputStream != null){
+            try{
+                connectedInputStream.close();
+                connectedInputStream = null;
+                Log.d(TAG, "Closed Input Stream successfully.");
+            }catch (IOException e){
+                Log.e(TAG, "Failed to close Input Stream.", e);
+            }
         }
+        if(connectedOutputStream != null){
+            try{
+                connectedOutputStream.close();
+                connectedOutputStream = null;
+                Log.d(TAG, "Closed Output Stream successfully.");
+            }catch (IOException e){
+                Log.e(TAG, "Failed to close Output Stream.", e);
+            }
+        }
+        if(socket != null){
+            try {
+                socket.close();
+                socket = null;
+                Log.d(TAG, "Closed Client Socket successfully.");
+            } catch (IOException e) {
+                Log.e(TAG, "Failed to close Client Socket.", e);
+            }
+        }
+        btListener.onThreadDisconnect();
     }
 
 }
