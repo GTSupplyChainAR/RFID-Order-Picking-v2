@@ -45,7 +45,7 @@ public class GlassClient implements ExperimentListener {
 
 
         mExperiment.setData(mFileIO.loadWarehouseData(),
-                            mFileIO.loadPickingData());
+                   mFileIO.loadPickingDataTraining(), mFileIO.loadPickingDataTesting());
     }
 
     public void shutdown(){
@@ -53,23 +53,13 @@ public class GlassClient implements ExperimentListener {
         mCommHandler.shutdown();
     }
 
+    public void startExperiment(boolean isTraining){
+        boolean canStart;
+        if(isTraining)
+            canStart = mExperiment.startTraining();
+        else
+            canStart = mExperiment.startTesting();
 
-    public void setPickingData(PickingData pickingData){
-        mExperiment.setData(pickingData);
-    }
-    public void setWarehouseData(WarehouseData warehouseData){
-        mExperiment.setData(warehouseData);
-    }
-
-    public void toggleExperiment(){
-        if(mExperiment.isActive()){
-            stopExperiment();
-        }else{
-            startExperiment();
-        }
-    }
-    public void startExperiment(){
-        boolean canStart = mExperiment.start();
         if(canStart){
             Log.d(TAG, "Starting Experiment.");
             mUI.onExperimentStarted();
@@ -101,7 +91,6 @@ public class GlassClient implements ExperimentListener {
     }
 
     public void onNewScan(String tag){
-        mLog("New scan -> "+tag);
         mExperiment.onNewScan(tag);
     }
 

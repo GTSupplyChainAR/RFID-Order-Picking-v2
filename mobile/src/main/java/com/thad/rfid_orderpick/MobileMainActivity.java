@@ -95,6 +95,9 @@ public class MobileMainActivity extends AppCompatActivity{
     public void onDisconnect(View view){ Log.d(TAG, "onDisconnectClicked"); mClient.onDisconnect(); }
     public void onExperimentClicked(View view){ Log.d(TAG, "onExperimentClicked"); mClient.onExperimentClicked(); }
     public void onLogClicked(View view){Log.d(TAG, "onLogClicked"); mClient.onLogClicked();}
+    public void onTrainingClicked(View v){Log.d(TAG, "onTrainingClicked"); mClient.onTrainingClicked();}
+    public void onTestingClicked(View v){Log.d(TAG, "onTestingClicked"); mClient.onTestingClicked();}
+
 
 
 

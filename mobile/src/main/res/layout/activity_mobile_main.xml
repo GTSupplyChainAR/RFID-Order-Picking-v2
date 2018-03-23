@@ -70,79 +70,103 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/connect"
-            android:text="Connect"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onConnect"/>
-        <Button
-            android:id="@+id/disconnect"
-            android:text="Disconnect"
-            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/connect"
+                android:text="Connect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onConnect"/>
+            <Button
+                android:id="@+id/disconnect"
+                android:text="Disconnect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onDisconnect"/>
+            <Button
+                android:id="@+id/log"
+                android:text="LOG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onLogClicked"/>
+            <Button
+                android:id="@+id/experiment_button"
+                android:text="START"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="onExperimentClicked"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/experiment_bar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onDisconnect"/>
-        <Button
-            android:id="@+id/log"
-            android:text="LOG"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onLogClicked"/>
-        <Button
-            android:id="@+id/experiment_button"
-            android:text="START"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onExperimentClicked"/>
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/training_button"
+                android:text="TRAINING"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_weight="1"
+                android:paddingBottom="5dp"
+                android:textColor="@color/white"
+                android:onClick="onTrainingClicked"
+                android:background="@drawable/red_underline"/>
+
+            <TextView
+                android:id="@+id/testing_button"
+                android:text="TESTING"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_weight="1"
+                android:paddingBottom="5dp"
+                android:textColor="@color/white"
+                android:onClick="onTestingClicked"
+                android:background="@color/black"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <!-- Username and ID -->
     <TextView
         android:id="@+id/username"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textAlignment="center"
-        android:text="User Name - ID"/>
+        android:visibility="gone"
+        android:text="User Name"/>
 
     <!-- TIMER & PAUSE button -->
-    <LinearLayout
-        android:id="@+id/timerLayout"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/timer"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:visibility="gone">
+        android:padding="5dp"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:layout_gravity="center"
+        android:text="00:00:00"/>
 
-        <TextView
-            android:id="@+id/timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textAlignment="center"
-            android:text="00:00:00"/>
-
-        <ImageView
-            android:id="@+id/pause"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:layout_marginLeft="15dp"
-            android:background="@drawable/white_pause"/>
-
-    </LinearLayout>
-
-
-    <!--
-          EXPERIMENT VIEW
-                            -->
+    <!--  EXPERIMENT VIEW   -->
     <LinearLayout
         android:id = "@+id/experiment_view_container"
         android:layout_width="match_parent"

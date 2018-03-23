@@ -12,7 +12,6 @@ import java.util.Set;
 public class PickingOrder {
     private PickingTask pickingTask;
     private int id;
-    private boolean isTraining;
 
     private HashMap<String, Integer> remaining_items;
     private HashMap<String, Integer> scanned_items;
@@ -48,7 +47,6 @@ public class PickingOrder {
     }
     public void setPickingTask(PickingTask pickingTask){
         this.pickingTask = pickingTask;
-        isTraining = pickingTask.isTraining();
     }
     public void setID(int id){this.id = id;}
 
@@ -89,7 +87,6 @@ public class PickingOrder {
     public PickingTask getTask(){return pickingTask;}
     public int getID() {return id;}
     public int getBinItemCount(String tag) {return remaining_items.get(tag);}
-    public boolean isTraining(){return isTraining;}
 
     public void reset(){
         remaining_items.putAll(scanned_items);

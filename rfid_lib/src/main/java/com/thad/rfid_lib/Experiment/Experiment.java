@@ -36,7 +36,7 @@ public class Experiment {
 
     private STATES state;
     private WarehouseData warehouseData;
-    private PickingData pickingData;
+    private PickingData pickingDataTraining, pickingDataTesting, pickingData;
 
     private ExperimentView experimentView;
     private ExperimentLog experimentLog;
@@ -50,6 +50,8 @@ public class Experiment {
 
     public Experiment(ExperimentListener client){
         warehouseData = new WarehouseData();
+        pickingDataTraining = new PickingData();
+        pickingDataTesting = new PickingData();
         pickingData = new PickingData();
         wrongScans = new HashMap<String, Boolean>();
         itemsOnHand = new HashMap<String, Integer>();
@@ -61,7 +63,15 @@ public class Experiment {
 
 
     //COMMANDS
-    public boolean start(){
+    public boolean startTraining(){
+        pickingData = pickingDataTraining;
+        return start();
+    }
+    public boolean startTesting(){
+        pickingData = pickingDataTesting;
+        return start();
+    }
+    private boolean start(){
         if(isActive())
             return false;
 
@@ -127,8 +137,7 @@ public class Experiment {
             return;
 
         print("New Scan - "+tag);
-        if(isStudyRunning)
-            experimentLog.addLine("SCAN "+tag);
+        log("SCAN "+tag);
 
         boolean isScanValid = checkErrors(tag);
 
@@ -146,11 +155,9 @@ public class Experiment {
             experimentView.getRackUI().emptyCell(pos);
             experimentView.checkCell(pos);
             mClient.playSound(Utils.SOUNDS.CLICK);
-            if(isStudyRunning)
-                experimentLog.addLine("VALID_RACK");
+            log("VALID_RACK");
         }else{
-            if(isStudyRunning)
-                experimentLog.addLine("VALID_CART "+itemsOnHand.size()+" "+Utils.countInHashmap(itemsOnHand));
+            log("VALID_CART "+itemsOnHand.size()+" "+Utils.countInHashmap(itemsOnHand));
 
             itemsOnHand.clear();
 
@@ -177,8 +184,7 @@ public class Experiment {
         if(scannedUnit == null || pos[0] >= scannedUnit.getDimensions()[0] || pos[0] < 0
                 || pos[1] >= scannedUnit.getDimensions()[1] || pos[1] < 0) {
             print("Invalid Scan rejected.");
-            if(isStudyRunning)
-                experimentLog.addLine("INVALID");
+            log("INVALID");
             return false;
         }
 
@@ -186,8 +192,7 @@ public class Experiment {
         if(!(scannedUnit.getTag()).equals(warehouseData.get(active_shelving_unit).getTag())
                 && !(scannedUnit.getTag()).equals(warehouseData.getCart().getTag())){
             print("Scanned wrong rack.");
-            if(isStudyRunning)
-                experimentLog.addLine("INVALID_RACK");
+            log("INVALID_RACK");
             mClient.playSound(Utils.SOUNDS.ERROR);
             experimentView.getRackUI().glow();
             return false;
@@ -197,9 +202,7 @@ public class Experiment {
         if(scannedUnit.isCart() && !pickingOrder.getReceiveBinTag().equals(tag)){
             if(itemsOnHand.size() > 0) {
                 print("Items in the wrong receive bin.");
-                if(isStudyRunning)
-                    experimentLog.addLine("INVALID_RECEIVE_BIN "+tag+" "
-                                    +pickingOrder.getReceiveBinTag());
+                log("INVALID_RECEIVE_BIN "+tag+" "+pickingOrder.getReceiveBinTag());
                 state = STATES.ERROR;
                 mClient.playSound(Utils.SOUNDS.ERROR);
                 experimentView.displayOverlay(itemsOnHand, pickingOrder.getReceiveBinTag(), tag);
@@ -208,8 +211,7 @@ public class Experiment {
         }
 
         if(pickingOrder.hadTag(tag)){
-            if(isStudyRunning)
-                experimentLog.addLine("INVALID_ALREADY_PICKED");
+            log("INVALID_ALREADY_PICKED");
             print("Item was already picked.");
             return false;
         }
@@ -218,14 +220,12 @@ public class Experiment {
         if(!scannedUnit.isCart() && !pickingOrder.hasTag(tag)){
             if(!wrongScans.containsKey(tag)){
                 print("Wrong item picked up.");
-                if(isStudyRunning)
-                    experimentLog.addLine("INVALID_ITEM");
+                log("INVALID_ITEM");
                 mClient.playSound(Utils.SOUNDS.ERROR);
                 wrongScans.put(tag, true);
             }else{
                 print("Error corrected.");
-                if(isStudyRunning)
-                    experimentLog.addLine("INVALID_ITEM_CORRECTED");
+                log("INVALID_ITEM_CORRECTED");
                 mClient.playSound(Utils.SOUNDS.CLICK);
                 wrongScans.remove(tag);
             }
@@ -246,13 +246,10 @@ public class Experiment {
             active_shelving_unit = 0;
             renderActiveOrder();
 
-            if(isStudyRunning) {
-                experimentLog.addLine("EXPERIMENT_STARTED");
-                experimentLog.addLine("TASK_STARTED " + activeOrder.getTaskID()
-                        + ((pickingData.getTask(activeOrder.getTaskID()).isTraining()) ? " TRAINING" : ""));
-                experimentLog.addLine("SUB_ORDER_STARTED " + activeOrder.getID() + "_"
+            log("EXPERIMENT_STARTED - "+((pickingData.isTraining())?"TRAINING":"TESTING"));
+            log("TASK_STARTED " + activeOrder.getTaskID());
+            log("SUB_ORDER_STARTED " + activeOrder.getID() + "_"
                         + warehouseData.get(active_shelving_unit).getTag());
-            }
             return;
         }
 
@@ -262,45 +259,34 @@ public class Experiment {
         PickingTask activeTask = activeOrder.getTask();
         int order_id = activeOrder.getID(), task_id = activeTask.getID();
         String unitTag = warehouseData.get(active_shelving_unit).getTag();
-        String isTraining = (activeTask.isTraining())?" TRAINING":"";
 
         if(activeOrder.getID() == activeTask.getLastOrder().getID()){
             if(active_shelving_unit >= warehouseData.getShelvingUnitCount()-1){
-                if(isStudyRunning) {
-                    experimentLog.addLine("SUB_ORDER_COMPLETED " + order_id + "_" + unitTag);
-                    experimentLog.addLine("TASK_COMPLETED " + task_id + isTraining);
-                }
+                log("SUB_ORDER_COMPLETED " + order_id + "_" + unitTag);
+                log("TASK_COMPLETED " + task_id);
                 if(activeTask.getID() == pickingData.getLastTask().getID()){
                     state = STATES.PAUSED;
                     renderActiveOrder();
-                    if(isStudyRunning)
-                        experimentLog.addLine("EXPERIMENT_ENDED");
+                    log("EXPERIMENT_ENDED");
                     return;
                 }
                 active_shelving_unit = 0;
                 activeOrder = pickingData.getNextTask(activeTask).getOrder(0);
-                if(isStudyRunning) {
-                    experimentLog.addLine("TASK_STARTED " + activeOrder.getTaskID() +
-                            ((activeOrder.isTraining()) ? " TRAINING" : ""));
-                    experimentLog.addLine("SUB_ORDER_STARTED " + activeOrder.getID() + "_" +
+                log("TASK_STARTED " + activeOrder.getTaskID());
+                log("SUB_ORDER_STARTED " + activeOrder.getID() + "_" +
                             warehouseData.get(0).getTag());
-                }
             }else{
-                if(isStudyRunning)
-                    experimentLog.addLine("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
+                log("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
                 active_shelving_unit ++;
                 activeOrder = activeTask.getOrder(0);
-                if(isStudyRunning)
-                    experimentLog.addLine("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+
+                log("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+
                                 warehouseData.get(active_shelving_unit).getTag());
             }
             experimentView.changeShelvingUnit(active_shelving_unit);
         }else{
-            if(isStudyRunning)
-                experimentLog.addLine("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
+            log("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
             activeOrder = activeTask.getNextOrder(activeOrder);
-            if(isStudyRunning)
-                experimentLog.addLine("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+unitTag);
+            log("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+unitTag);
         }
 
         int remainingItems = activeOrder.getRemainingCountInShelvingUnit(warehouseData.get(active_shelving_unit));
@@ -335,9 +321,9 @@ public class Experiment {
 
 
     //SETTERS
-    public void setData(WarehouseData warehouseData, PickingData pickingData){
+    public void setData(WarehouseData warehouseData, PickingData pickingDataTraining, PickingData pickingDataTesting){
         setData(warehouseData);
-        setData(pickingData);
+        setData(pickingDataTraining, pickingDataTesting);
     }
     public void setData(WarehouseData warehouseData){
         this.warehouseData = warehouseData;
@@ -345,9 +331,12 @@ public class Experiment {
         if(pickingData != null)
            state = STATES.READY;
     }
-    public void setData(PickingData pickingData){
-        this.pickingData = pickingData;
-        print(pickingData.toString());
+    public void setData(PickingData pickingDataTraining, PickingData pickingDataTesting){
+        this.pickingDataTraining = pickingDataTraining;
+        this.pickingDataTesting = pickingDataTesting;
+        this.pickingData = pickingDataTraining;
+        print("Tasks: "+pickingDataTraining.getTaskCount()+" training and "
+                        +pickingDataTesting.getTaskCount()+" picking.");
         if(warehouseData != null)
             state = STATES.READY;
     }
@@ -356,8 +345,7 @@ public class Experiment {
     public void errorFixed(){
         if(state != STATES.ERROR)
             return;
-        if(isStudyRunning)
-            experimentLog.addLine("ERROR_CORRECTED");
+        log("ERROR_CORRECTED");
         state = STATES.ACTIVE;
         experimentView.hideOverlay();
         experimentView.getCartUI().emptyAll();
@@ -371,6 +359,10 @@ public class Experiment {
         if(startTime == null)
             return null;
         return System.currentTimeMillis() - startTime;
+    }
+    public void log(String str){
+        if(isStudyRunning)
+            experimentLog.addLine(str);
     }
 
 

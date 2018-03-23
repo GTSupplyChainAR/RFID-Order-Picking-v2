@@ -3,12 +3,14 @@ package com.thad.rfid_orderpick.UI;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,6 +36,7 @@ public class UserInterfaceHandler {
     private static final String TAG = "|UIHandler|";
 
     private static int edit_index = -1;
+    private boolean experimentRunning;
 
     private Activity mActivity;
     private MobileClient mClient;
@@ -54,10 +57,11 @@ public class UserInterfaceHandler {
 
         mobileLog = mActivity.findViewById(R.id.mobileLog);
 
-
-                nameViews = new TextView[Prefs.NUM_DEVICES];
+        nameViews = new TextView[Prefs.NUM_DEVICES];
         batteries = new TextView[Prefs.NUM_DEVICES];
         connections = new TextView[Prefs.NUM_DEVICES];
+
+        experimentRunning = false;
 
         generateDeviceList();
     }
@@ -148,16 +152,49 @@ public class UserInterfaceHandler {
             public void run() {
                 LinearLayout deviceList = mActivity.findViewById(R.id.deviceList);
                 Button experimentButton = mActivity.findViewById(R.id.experiment_button);
+                LinearLayout experimentBar = mActivity.findViewById(R.id.experiment_bar);
                 TextView timer = mActivity.findViewById(R.id.timer);
-                if(deviceList.getVisibility() == View.GONE) {
+                TextView username = mActivity.findViewById(R.id.username);
+                username.setVisibility(View.GONE);
+                if(experimentRunning) {
                     experimentButton.setText("START");
                     deviceList.setVisibility(View.VISIBLE);
+                    experimentBar.setVisibility(View.GONE);
                     timer.setVisibility(View.GONE);
+                    experimentRunning = false;
                 }else{
                     experimentButton.setText("STOP");
                     deviceList.setVisibility(View.GONE);
+                    experimentBar.setVisibility(View.VISIBLE);
                     timer.setVisibility(View.VISIBLE);
+                    if(mClient.isStudyRunning()) {
+                        username.setVisibility(View.VISIBLE);
+                        username.setText(mClient.getStudyData().getActiveSubject().getName());
+                    }
+                    experimentRunning = true;
                 }
+            }
+        });
+    }
+    public void onTrainingSelected(){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView training_button = mActivity.findViewById(R.id.training_button);
+                TextView testing_button = mActivity.findViewById(R.id.testing_button);
+                training_button.setBackground(mActivity.getResources().getDrawable(R.drawable.red_underline));
+                testing_button.setBackgroundColor(Color.BLACK);
+            }
+        });
+    }
+    public void onTestingSelected(){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView training_button = mActivity.findViewById(R.id.training_button);
+                TextView testing_button = mActivity.findViewById(R.id.testing_button);
+                testing_button.setBackground(mActivity.getResources().getDrawable(R.drawable.red_underline));
+                training_button.setBackgroundColor(Color.BLACK);
             }
         });
     }
@@ -195,7 +232,7 @@ public class UserInterfaceHandler {
 
 
     public void mLog(String text){
-        Log.d(TAG, "LOG|| "+text);
+        Log.d(TAG, text);
         mLogRaw(text+"\n> ");
     }
     public void mLogRaw(String text){
@@ -315,6 +352,18 @@ public class UserInterfaceHandler {
         dropdown.setAdapter(adapter);
 
         final EditText userInput = promptsView.findViewById(R.id.user_input_name);
+
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position != 0)
+                    userInput.setText(String.valueOf(dropdown.getSelectedItem()));
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         // set dialog message
         alertDialogBuilder

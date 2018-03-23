@@ -6,6 +6,7 @@ import android.util.Log;
 import com.thad.rfid_lib.Data.PickingData;
 import com.thad.rfid_lib.Data.WarehouseData;
 import com.thad.rfid_lib.Decoder;
+import com.thad.rfid_lib.Static.Prefs;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +18,6 @@ import java.io.InputStream;
 public class FileIO {
     private static final String TAG = "|FileIO|";
 
-    private static final String experimentDataFileName = "warehouse.json";
-    private static final String pickDataFileName = "pick_tasks.json";
 
 
     private Context context;
@@ -30,7 +29,7 @@ public class FileIO {
 
     public WarehouseData loadWarehouseData(){
         try {
-            String json_str = loadJSON(experimentDataFileName);
+            String json_str = loadJSON(Prefs.WAREHOUSE_DATA_FILENAME);
             return Decoder.decodeWarehouseDataJSON(json_str);
         } catch (Exception e) {
             Log.e(TAG, "Could not load Experiment Data.");
@@ -39,9 +38,19 @@ public class FileIO {
         return new WarehouseData();
     }
 
-    public PickingData loadPickingData(){
+    public PickingData loadPickingDataTesting(){
+        PickingData testingData = loadPickingData(Prefs.PICK_DATA_TESTING_FILENAME);
+        testingData.setIsTraining(false);
+        return testingData;
+    }
+    public PickingData loadPickingDataTraining(){
+        PickingData trainingData = loadPickingData(Prefs.PICK_DATA_TRAINING_FILENAME);
+        trainingData.setIsTraining(true);
+        return trainingData;
+    }
+    private PickingData loadPickingData(String filename){
         try {
-            String json_str = loadJSON(pickDataFileName);
+            String json_str = loadJSON(filename);
             return Decoder.decodePickingDataJSON(json_str);
         } catch (Exception e) {
             Log.e(TAG, "Could not load Picking Data.");

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -203,14 +204,14 @@ public class ShelvingUnitUI extends LinearLayout {
         tag_layout.setLayoutParams(new LayoutParams(MP, MP, 1-Prefs.RACK_TAG_PERCENTAGE));
         int padding_px = Utils.dp_to_pixels(context, 1);
         tag_layout.setPadding(0, 0, 0, 2*padding_px);
-        tag_layout.setGravity(Gravity.CENTER|Gravity.BOTTOM);
+        tag_layout.setGravity(Gravity.CENTER);//|Gravity.BOTTOM);
 
         if(neighbors.get(NEIGHBOR.RIGHT) && !neighbors.get(NEIGHBOR.LEFT)) {
             tag_layout.setPadding(5*padding_px, 0, 0, 2*padding_px);
-            tag_layout.setGravity(Gravity.LEFT|Gravity.BOTTOM);
+            tag_layout.setGravity(Gravity.LEFT| Gravity.BOTTOM);
         }else if(!neighbors.get(NEIGHBOR.RIGHT) && neighbors.get(NEIGHBOR.LEFT)){
             tag_layout.setPadding(0, 0, 12*padding_px, 2*padding_px);
-            tag_layout.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
+            tag_layout.setGravity(Gravity.RIGHT | Gravity.BOTTOM);
         }
 
         TextView tag_view = new TextView(context);
@@ -218,6 +219,7 @@ public class ShelvingUnitUI extends LinearLayout {
         tag_view.setBackground(context.getResources().getDrawable(R.drawable.crem_tag_container));
         tag_view.setPadding(12*padding_px, padding_px, 12*padding_px, padding_px);
         tag_view.setTextColor(Color.BLACK);
+        tag_view.setGravity(Gravity.CENTER);
         int text_size = R.dimen.tag_text;
         if(experiment.isGlass())
             text_size = R.dimen.glass_tag_text;
@@ -225,7 +227,6 @@ public class ShelvingUnitUI extends LinearLayout {
                 context.getResources().getDimension(text_size)));
         tag_view.setTypeface(Typeface.DEFAULT_BOLD);
         tag_view.setText(tag);
-        tag_view.setGravity(Gravity.CENTER);
 
         tag_layout.addView(tag_view);
 

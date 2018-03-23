@@ -1,6 +1,7 @@
 package com.thad.rfid_orderpick;
 
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.thad.rfid_lib.Experiment.Experiment;
@@ -10,6 +11,7 @@ import com.thad.rfid_lib.FileIO;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.Communications.CommunicationHandler;
+import com.thad.rfid_orderpick.Log.StudyData;
 import com.thad.rfid_orderpick.Log.StudyHandler;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
@@ -41,16 +43,17 @@ public class MobileClient implements ExperimentListener{
         mFileIO = new FileIO(mContext);
         mStudyHandler = new StudyHandler(this);
 
-        mCommHandler = new CommunicationHandler(this);
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler = new CommunicationHandler(this);
         mUI = new UserInterfaceHandler(this);
         mExperiment = new Experiment(this);
 
         mUI.startUpdating();
 
         mExperiment.setData(mFileIO.loadWarehouseData(),
-                mFileIO.loadPickingData());
+                mFileIO.loadPickingDataTraining(), mFileIO.loadPickingDataTesting());
 
-        if(Prefs.QUICK_START){
+        if(Prefs.QUICK_START && !Prefs.RUN_OFFLINE){
             mCommHandler.connect();
         }
     }
@@ -58,33 +61,46 @@ public class MobileClient implements ExperimentListener{
 
     //COMMANDS
     public void editAddress(int device_index, String new_address){
-        mCommHandler.editAddress(device_index, new_address);
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler.editAddress(device_index, new_address);
     }
     public void shutdown(){
-        mCommHandler.disconnect();
+        if(Prefs.RUN_OFFLINE)
+            mCommHandler.disconnect();
     }
     //END OF COMMANDS
 
 
-    public void onConnect(){mCommHandler.connect();}
-    public void onDisconnect(){mCommHandler.disconnect();}
+    public void onConnect(){
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler.connect();}
+    public void onDisconnect(){
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler.disconnect();}
     public void onExperimentClicked(){
         if(mExperiment.isActive())
             stopExperiment();
         else
-            startExperiment();
+            startExperiment(true);
     }
     public void stopExperiment(){
         boolean canStop = mExperiment.stop();
         if(canStop) {
-            mCommHandler.stopExperiment();
+            if(!Prefs.RUN_OFFLINE)
+                mCommHandler.stopExperiment();
             mUI.onExperimentToggled();
         }
     }
-    private void startExperiment(){
-        boolean canStart = mExperiment.start();
+    private void startExperiment(boolean isTraining){
+        boolean canStart;
+        if(isTraining)
+            canStart = mExperiment.startTraining();
+        else
+            canStart = mExperiment.startTesting();
+
         if(canStart){
-            mCommHandler.startExperiment();
+            if(!Prefs.RUN_OFFLINE)
+                mCommHandler.startExperiment(isTraining);
             mUI.onExperimentToggled();
         }
     }
@@ -98,13 +114,24 @@ public class MobileClient implements ExperimentListener{
     public void onLogClicked(){
         mUI.editLogPopup();
     }
+    public void onTrainingClicked(){
+        mUI.onTrainingSelected();
+        stopExperiment();
+        startExperiment(true);
+    }
+    public void onTestingClicked(){
+        mUI.onTestingSelected();
+        stopExperiment();
+        startExperiment(false);
+    }
 
 
     //EVENT LISTENERS
     public void onNewRFIDScan(String scan, int strength){
         mLog("New RFID Scan: "+scan+", Strength: "+strength);
         mExperiment.onNewScan(scan);
-        mCommHandler.sendScan(scan);
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler.sendScan(scan);
     }
     public void onBatteryUpdate(int device_index, double battery_level) {
         mUI.updateBattery(device_index, battery_level);
@@ -120,9 +147,20 @@ public class MobileClient implements ExperimentListener{
     public List<String> getSubjectNames(){ return mStudyHandler.getSubjectNames(); }
 
     //GETTERS
-    public String[] getAddresses(){return mCommHandler.getAddresses();}
-    public boolean[] getConnStatus(){return mCommHandler.getConnStatus();}
+    public String[] getAddresses(){
+        if(!Prefs.RUN_OFFLINE)
+            return mCommHandler.getAddresses();
+        else
+            return new String[]{Prefs.GLASS_ADDRESS, Prefs.XBAND1_ADDRESS, Prefs.XBAND2_ADDRESS};
+    }
+    public boolean[] getConnStatus(){
+        if(!Prefs.RUN_OFFLINE)
+            return mCommHandler.getConnStatus();
+        else
+            return new boolean[]{false, false, false};
+    }
     public Long getExperimentTime(){return mExperiment.getElapsedTime();}
+    public StudyData getStudyData(){return mStudyHandler.getStudyData();}
     //END OF GETTERS
 
 

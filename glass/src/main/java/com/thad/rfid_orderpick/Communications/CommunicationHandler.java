@@ -44,32 +44,16 @@ public class CommunicationHandler {
 
     public void onMessageReceived(Decoder.MSG_TAG msgTag, String msgString) {
         switch (msgTag){
-            case PICKDATA:
-                try {
-                    PickingData pickingData = Decoder.decodePickingDataJSON(msgString);
-                    Log.d(TAG, "Received Picking Data successfully.");
-                    mClient.setPickingData(pickingData);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to decode Picking Data.");
-                    e.printStackTrace();
-                }
-                break;
-            case WAREHOUSE:
-                try {
-                    WarehouseData warehouseData = Decoder.decodeWarehouseDataJSON(msgString);
-                    Log.d(TAG, "Received Warehouse Data successfully.");
-                    mClient.setWarehouseData(warehouseData);
-                } catch (JSONException e) {
-                    Log.e(TAG, "Failed to decode Warehouse Data.");
-                    e.printStackTrace();
-                }
-                break;
             case SCAN:
                 mClient.onNewScan(msgString);
                 break;
-            case START:
-                Log.d(TAG, "Received order to start experiment!");
-                mClient.startExperiment();
+            case STARTTRAIN:
+                Log.d(TAG, "Received order to start training experiment!");
+                mClient.startExperiment(true);
+                break;
+            case STARTTEST:
+                Log.d(TAG, "Received order to start testing experiment!");
+                mClient.startExperiment(false);
                 break;
             case STOP:
                 Log.d(TAG, "Received order to stop experiment!");

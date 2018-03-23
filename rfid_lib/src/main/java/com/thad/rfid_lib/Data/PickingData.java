@@ -10,9 +10,9 @@ import java.util.Random;
 public class PickingData {
     private static final String TAG = "|PickingData|";
     private String json_string, version;
+    private boolean isTraining;
 
     private ArrayList<PickingTask> pickingTasks;
-    private int numTrainingTasks;
 
 
     public PickingData(){
@@ -22,8 +22,6 @@ public class PickingData {
 
     public void add(PickingTask task){
         pickingTasks.add(task);
-        if(task.isTraining())
-            numTrainingTasks++;
     }
 
     public void reset(){
@@ -34,6 +32,8 @@ public class PickingData {
         }
     }
 
+    public void setIsTraining(boolean isTraining){this.isTraining = isTraining;}
+    public boolean isTraining(){return isTraining;}
 
     public PickingTask getTask(int index){return pickingTasks.get(index);}
     public PickingTask getLastTask(){return pickingTasks.get(pickingTasks.size()-1);}
@@ -68,8 +68,4 @@ public class PickingData {
     public void setVersion(String version){this.version = version;}
     public String getJSON(){return json_string;}
     public String getVersion(){return version;}
-    public String toString(){
-        return "Tasks: "+numTrainingTasks+" training and "
-                        +(pickingTasks.size()-numTrainingTasks)+" picking.";
-    }
 }

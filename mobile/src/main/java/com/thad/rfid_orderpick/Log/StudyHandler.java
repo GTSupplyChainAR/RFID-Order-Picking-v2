@@ -39,8 +39,8 @@ public class StudyHandler {
 
     private void init() {
         studyData = logIO.readStudyData();
-        //studyData.deleteAll(logIO);
         //logIO.deleteAllLogFiles();
+        //studyData.deleteAll(logIO);
         //studyData = new StudyData();
         //logIO.saveStudyData(studyData);
     }
@@ -97,5 +97,6 @@ public class StudyHandler {
 
         return uniqueID;
     }
+    public StudyData getStudyData(){return studyData;}
 
 }

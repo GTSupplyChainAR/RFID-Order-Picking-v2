@@ -22,7 +22,7 @@ import com.thad.rfid_orderpick.R;
  */
 
 public class UserInterfaceHandler {
-    private static final String TAG = "UserInterfaceHandler";
+    private static final String TAG = "|UserInterfaceHandler|";
 
 
     private static TextView glassLog, userFriendlyLog;
@@ -72,10 +72,10 @@ public class UserInterfaceHandler {
         return (ViewGroup)mActivity.findViewById(R.id.experiment_view_container);
     }
     public void mLog(String text){
+        Log.d(TAG, text);
         mLogRaw(text+"\n> ");
     }
     public void mLogRaw(String text){
-        Log.d(TAG, text);
         mActivity.runOnUiThread(new AddToLogRunnable(text));
     }
 

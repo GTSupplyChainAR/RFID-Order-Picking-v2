@@ -8,17 +8,15 @@ import java.util.ArrayList;
 
 public class PickingTask {
     private int id = 0;
-    private boolean isTraining = false;
 
     private ArrayList<PickingOrder> orders;
 
     public PickingTask(){
         orders = new ArrayList<PickingOrder>();
     }
-    public PickingTask(int id, boolean isTraining){
+    public PickingTask(int id){
         this();
         this.id = id;
-        this.isTraining = isTraining;
     }
 
     public void add(PickingOrder pickingOrder){
@@ -26,7 +24,6 @@ public class PickingTask {
         orders.add(pickingOrder);
     }
 
-    public boolean isTraining(){return isTraining;}
 
     public ArrayList<PickingOrder> getOrders(){return orders;}
     public PickingOrder getOrder(int index){

@@ -95,8 +95,11 @@ public class CommunicationHandler {
     public void sendScan(String scan){
         mGlassBT.sendMessage(Decoder.MSG_TAG.SCAN, scan);
     }
-    public void startExperiment(){
-        mGlassBT.sendMessage(Decoder.MSG_TAG.START, "");
+    public void startExperiment(boolean isTraining){
+        if(isTraining)
+            mGlassBT.sendMessage(Decoder.MSG_TAG.STARTTRAIN, "");
+        else
+            mGlassBT.sendMessage(Decoder.MSG_TAG.STARTTEST, "");
     }
     public void stopExperiment(){
         mGlassBT.sendMessage(Decoder.MSG_TAG.STOP, "");

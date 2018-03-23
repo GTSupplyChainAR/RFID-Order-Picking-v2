@@ -8,12 +8,13 @@ public class Prefs {
     public static String[] device_names = new String[]{"Google Glass", "XBand #6795", "XBand #62D7"};
     public static final int NUM_DEVICES = 3;
     public static final boolean QUICK_START = false;
+    public static final boolean RUN_OFFLINE = false;
 
     //DEFAULT ADDRESSES
     public static final String PHONE_ADDRESS = "3C:BB:FD:27:A0:1E";
-    public static final String GLASS_ADDRESS = "F8:8F:CA:12:E0:A3";
     public static final String XBAND1_ADDRESS = "B#E076D0916795";
     public static final String XBAND2_ADDRESS = "B#E076D09162D7";
+    public static final String GLASS_ADDRESS = "F8:8F:CA:12:E0:A3";
     public static final String GLASS_UUID = "00001101-0000-1000-8000-00805F9B34FB";
 
     //XBAND SETTINGS
@@ -32,10 +33,13 @@ public class Prefs {
     public static final int FADED_GLOW_DURATION = 3000; // in milliseconds
     public static final boolean REVERSED_FADED_RACKS = false;
 
-    //
+    //ID of logs and subjects
     public static final int ID_DIGIT_NUM = 4;
 
     //FILENAMES
     public static final String EXPERIMENT_LOGS_FOLDER = "experiment_logs";
     public static final String USER_STUDY_FILENAME = "user_study.json";
+    public static final String WAREHOUSE_DATA_FILENAME = "warehouse.json";
+    public static final String PICK_DATA_TESTING_FILENAME = "pick_tasks_testing.json";
+    public static final String PICK_DATA_TRAINING_FILENAME = "pick_tasks_training.json";
 }

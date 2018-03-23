@@ -22,14 +22,13 @@ import java.nio.ByteBuffer;
 public class Decoder {
     private static final String TAG = "|Decoder|";
     public static int HEADER_MSG_LENGTH_SIZE = 10;
-    public static int HEADER_MSG_TAG_SIZE = 10;
+    public static int HEADER_MSG_TAG_SIZE = 20;
     public static final String STRING_ENCODE = "UTF-8";
 
     public enum MSG_TAG {
-        PICKDATA,
-        WAREHOUSE,
         SCAN,
-        START,
+        STARTTRAIN,
+        STARTTEST,
         STOP,
         TAP
     }
@@ -68,8 +67,8 @@ public class Decoder {
             JSONArray json_orders = json_task_i.getJSONArray("orders");
 
             int task_i_id = json_task_i.getInt("taskId");
-            boolean isTraining = json_task_i.getBoolean("isTrainingTask");
-            PickingTask task_i = new PickingTask(task_i_id, isTraining);
+            //boolean isTraining = json_task_i.getBoolean("isTrainingTask");
+            PickingTask task_i = new PickingTask(task_i_id);//, isTraining);
 
             for(int j = 0 ; j < json_orders.length() ; j++) {
                 JSONObject json_order_j = json_orders.getJSONObject(j);
