@@ -27,6 +27,7 @@ public class CellUI {
     private int color_id;
     private int width, height;
     private String tag;
+    private int rack_text_size, cart_text_size;
 
     private CellDrawable cellDrawable;
     private TextView cellView;
@@ -53,29 +54,14 @@ public class CellUI {
         cellView.setTextColor(Color.WHITE);
         cellView.setTypeface(Typeface.DEFAULT_BOLD);
 
-        int rack_text_size = R.dimen.rack_cell_text;
-        int cart_text_size = R.dimen.cart_cell_text;
+        rack_text_size = R.dimen.rack_cell_text;
+        cart_text_size = R.dimen.cart_cell_text;
         if(experiment.isGlass()){
             rack_text_size = R.dimen.glass_rack_cell_text;
             cart_text_size = R.dimen.glass_cart_cell_text;
         }
 
-
-        if(!isCart) {
-            cellView.setTextSize(Utils.dp_to_pixels(activity,
-                    activity.getResources().getDimension(rack_text_size)));
-            cellView.setGravity(Gravity.CENTER);
-        }else{
-            cellView.setTextSize(Utils.dp_to_pixels(activity,
-                    activity.getResources().getDimension(cart_text_size)));
-            cellView.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-            cellView.setPadding(0 ,0, 0, Utils.dp_to_pixels(activity, 3));
-        }
-
-        if((tag.charAt(1) == '2' || tag.charAt(1) == '3') && !isCart)
-            cellView.setTextColor(Color.BLACK);
-        else
-            cellView.setShadowLayer(8,0,0,Color.BLACK);
+        updateTextStyle();
 
 
         cellView.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +74,27 @@ public class CellUI {
         cellDrawable = new CellDrawable(activity, color_id);
 
         empty();
+    }
+
+    private void updateTextStyle(){
+        if(!isCart) {
+            cellView.setTextSize(Utils.dp_to_pixels(activity,
+                    activity.getResources().getDimension(rack_text_size)));
+            cellView.setGravity(Gravity.CENTER);
+        }else{
+            cellView.setTextSize(Utils.dp_to_pixels(activity,
+                    activity.getResources().getDimension(cart_text_size)));
+            cellView.setGravity(Gravity.CENTER | Gravity.BOTTOM);
+            cellView.setPadding(0 ,0, 0, Utils.dp_to_pixels(activity, 3));
+        }
+
+        if((tag.charAt(1) == '2' || tag.charAt(1) == '3') && !isCart) {
+            cellView.setShadowLayer(0,0,0,Color.BLACK);
+            cellView.setTextColor(Color.BLACK);
+        }else {
+            cellView.setShadowLayer(8, 0, 0, Color.BLACK);
+            cellView.setTextColor(Color.WHITE);
+        }
     }
 
     public void fill(){
@@ -114,6 +121,7 @@ public class CellUI {
                 @Override
                 public void run() {
                     cellDrawable.empty();
+                    updateTextStyle();
                     cellView.setBackground(cellDrawable.getDrawable());
                 }
             });
@@ -156,6 +164,10 @@ public class CellUI {
             @Override
             public void run() {
                 cellView.setBackground(cellDrawable.getDrawable());
+                cellView.setShadowLayer(8,0,0,Color.BLACK);
+                String prev_text = (String) cellView.getText();
+                cellView.setTextColor(activity.getResources().getColor(R.color.checked_cell_text));
+                cellView.setText(prev_text);
             }
         });
     }

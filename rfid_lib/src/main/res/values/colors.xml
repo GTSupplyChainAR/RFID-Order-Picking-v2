@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="red">#FF2222</color>
-    <color name="yellow">#EEEE00</color>
-    <color name="green">#44FF44</color>
-    <color name="blue">#4444FF</color>
-    <color name="black">#000000</color>
-    <color name="dark_gray">#333333</color>
+    <color name="red">#F22</color>
+    <color name="yellow">#EE0</color>
+    <color name="green">#4F4</color>
+    <color name="blue">#44F</color>
+    <color name="black">#000</color>
+    <color name="dark_gray">#333</color>
     <color name="faded_rack_gray">#F666</color>
     <color name="faded_rack_fill_red">#FF00</color>
+    <color name="checked_cell_text">#444</color>
 </resources>

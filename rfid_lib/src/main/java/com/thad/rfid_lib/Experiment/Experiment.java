@@ -152,7 +152,7 @@ public class Experiment {
         if(!scannedUnit.isCart()){
             itemsOnHand.put(tag, activeOrder.getBinItemCount(tag));
             activeOrder.scan(tag);
-            experimentView.getRackUI().emptyCell(pos);
+            //experimentView.getRackUI().emptyCell(pos);
             experimentView.checkCell(pos);
             mClient.playSound(Utils.SOUNDS.CLICK);
             log("VALID_RACK");
