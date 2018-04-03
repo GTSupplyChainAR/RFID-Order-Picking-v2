@@ -59,6 +59,14 @@ public class CommunicationHandler {
                 Log.d(TAG, "Received order to stop experiment!");
                 mClient.stopExperiment();
                 break;
+            case PAUSE:
+                Log.d(TAG, "Received order to pause experiment.");
+                mClient.pauseExperiment();
+                break;
+            case RESUME:
+                Log.d(TAG, "Received order to resume experiment.");
+                mClient.resumeExperiment();
+                break;
         }
     }
 

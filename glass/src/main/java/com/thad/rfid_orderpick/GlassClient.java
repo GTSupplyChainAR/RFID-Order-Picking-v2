@@ -72,6 +72,8 @@ public class GlassClient implements ExperimentListener {
             mUI.onExperimentStopped();
         }
     }
+    public void pauseExperiment(){ mExperiment.pause(); }
+    public void resumeExperiment(){ mExperiment.resume(); }
 
     public void onTap(){
         mExperiment.errorFixed();
@@ -83,9 +85,12 @@ public class GlassClient implements ExperimentListener {
     }
 
     public void onConnectionLost() {
-        stopExperiment();
-        if(!onDestroyed) {
+        if(onDestroyed) {
+            stopExperiment();
             mUI = new UserInterfaceHandler(this);
+            mCommHandler = new CommunicationHandler(this);
+        }else{
+            pauseExperiment();
             mCommHandler = new CommunicationHandler(this);
         }
     }

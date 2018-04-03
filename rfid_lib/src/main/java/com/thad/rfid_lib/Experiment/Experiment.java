@@ -14,6 +14,7 @@ import com.thad.rfid_lib.Data.WarehouseData;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UI.ExperimentView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -41,12 +42,15 @@ public class Experiment {
     private ExperimentView experimentView;
     private ExperimentLog experimentLog;
     private boolean isStudyRunning;
+    private boolean processingScan;
 
-    private Long startTime;
-    private int active_shelving_unit = 0;
+    private int active_shelving_unit = 0, task_completed_count = 0;
     private PickingOrder activeOrder;
     private HashMap<String, Integer> itemsOnHand;
     private HashMap<String, Boolean> wrongScans;
+
+    private Long startTime;
+    private ArrayList<Long> pausedTimes;
 
     public Experiment(ExperimentListener client){
         warehouseData = new WarehouseData();
@@ -55,9 +59,11 @@ public class Experiment {
         pickingData = new PickingData();
         wrongScans = new HashMap<String, Boolean>();
         itemsOnHand = new HashMap<String, Integer>();
+        pausedTimes = new ArrayList<Long>();
 
         state = STATES.BLOCKED;
         isStudyRunning = false;
+        processingScan = false;
         mClient = client;
     }
 
@@ -77,6 +83,7 @@ public class Experiment {
 
         print("Experiment Starting...");
         startTime = System.currentTimeMillis();
+        pausedTimes.add(startTime);
         state = STATES.ACTIVE;
 
         experimentView = new ExperimentView(this);
@@ -119,6 +126,26 @@ public class Experiment {
 
         return true;
     }
+    public boolean resume(){
+        if(state != STATES.PAUSED)
+            return false;
+
+        pausedTimes.add(System.currentTimeMillis());
+        state = STATES.ACTIVE;
+        log("RESUMED");
+        print("Experiment Resumed.");
+        return true;
+    }
+    public boolean pause(){
+        if(state != STATES.ACTIVE)
+            return false;
+
+        pausedTimes.add(System.currentTimeMillis());
+        state = STATES.PAUSED;
+        log("PAUSED");
+        print("Experiment Paused.");
+        return true;
+    }
 
     public void reset(){
         if(isStudyRunning) {
@@ -129,20 +156,34 @@ public class Experiment {
         pickingData.reset();
         itemsOnHand.clear();
         wrongScans.clear();
+        pausedTimes.clear();
         activeOrder = null;
+        task_completed_count = 0;
     }
 
     public void onNewScan(String tag){
-        if(state != STATES.ACTIVE)
+        if(state != STATES.ACTIVE) {
+            Log.e(TAG, "Experiment is not Active, so ignoring Scan "+tag);
             return;
+        }
+
+        if(processingScan){
+            Log.e(TAG, "A scan is already being processed. Ignoring "+tag);
+            log("CONCURRENT_SCAN "+tag);
+            return;
+        }
+
+        processingScan = true;
 
         print("New Scan - "+tag);
         log("SCAN "+tag);
 
         boolean isScanValid = checkErrors(tag);
 
-        if(!isScanValid)
+        if(!isScanValid) {
+            processingScan = false;
             return;
+        }
 
         String letterTag = Utils.tagToLetter(tag);
         int[] pos = Utils.tagToPos(tag);
@@ -158,12 +199,12 @@ public class Experiment {
             log("VALID_RACK");
         }else{
             log("VALID_CART "+itemsOnHand.size()+" "+Utils.countInHashmap(itemsOnHand));
+            print("Placed "+Utils.countInHashmap(itemsOnHand)+" items on cart.");
 
             itemsOnHand.clear();
 
             int remainingItems = activeOrder.getRemainingCountInShelvingUnit(warehouseData.get(active_shelving_unit));
             if(remainingItems == 0){
-                print("Order Done.");
                 mClient.playSound(Utils.SOUNDS.SUCCESS);
                 nextOrder();
             }else{
@@ -171,6 +212,9 @@ public class Experiment {
                mClient.playSound(Utils.SOUNDS.CLICK);
             }
         }
+
+        //Log.d(TAG, "No longer processing a SCAN.");
+        processingScan = false;
     }
 
     private boolean checkErrors(String tag){
@@ -250,6 +294,8 @@ public class Experiment {
             log("TASK_STARTED " + activeOrder.getTaskID());
             log("SUB_ORDER_STARTED " + activeOrder.getID() + "_"
                         + warehouseData.get(active_shelving_unit).getTag());
+            print("Starting Task "+activeOrder.getTaskID());
+            print("Starting Order "+activeOrder.getID()+", Shelving Unit "+warehouseData.get(active_shelving_unit).getTag());
             return;
         }
 
@@ -264,10 +310,13 @@ public class Experiment {
             if(active_shelving_unit >= warehouseData.getShelvingUnitCount()-1){
                 log("SUB_ORDER_COMPLETED " + order_id + "_" + unitTag);
                 log("TASK_COMPLETED " + task_id);
+                print("Sub-order completed.\nTask completed.");
+                task_completed_count ++;
                 if(activeTask.getID() == pickingData.getLastTask().getID()){
                     state = STATES.PAUSED;
                     renderActiveOrder();
                     log("EXPERIMENT_ENDED");
+                    print("Experiment ended.");
                     return;
                 }
                 active_shelving_unit = 0;
@@ -275,18 +324,26 @@ public class Experiment {
                 log("TASK_STARTED " + activeOrder.getTaskID());
                 log("SUB_ORDER_STARTED " + activeOrder.getID() + "_" +
                             warehouseData.get(0).getTag());
+                print("Starting Task " + activeOrder.getTaskID());
+                print("Starting Order " + activeOrder.getID() + ", Shelving Unit " +
+                        warehouseData.get(0).getTag());
             }else{
                 log("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
+                print("Sub-order completed");
                 active_shelving_unit ++;
                 activeOrder = activeTask.getOrder(0);
                 log("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+
                                 warehouseData.get(active_shelving_unit).getTag());
+                print("Starting Order  "+activeOrder.getID()+", Shelving Unit "+
+                        warehouseData.get(active_shelving_unit).getTag());
             }
             experimentView.changeShelvingUnit(active_shelving_unit);
         }else{
             log("SUB_ORDER_COMPLETED "+order_id+"_"+unitTag);
+            print("Sub-order completed");
             activeOrder = activeTask.getNextOrder(activeOrder);
             log("SUB_ORDER_STARTED "+activeOrder.getID()+"_"+unitTag);
+            print("Starting Order "+activeOrder.getID()+", Shelving Unit "+unitTag);
         }
 
         int remainingItems = activeOrder.getRemainingCountInShelvingUnit(warehouseData.get(active_shelving_unit));
@@ -354,11 +411,23 @@ public class Experiment {
     }
 
     //UTILS
-    public boolean isActive(){return state == STATES.ACTIVE || state == STATES.ERROR || state == STATES.PAUSED;}
+    public boolean isRunning(){return state == STATES.ACTIVE || state == STATES.ERROR || state == STATES.PAUSED;}
+    public boolean isActive(){return state == STATES.ACTIVE;}
+    public boolean isPaused(){return state == STATES.PAUSED; }
     public Long getElapsedTime(){
         if(startTime == null)
             return null;
-        return System.currentTimeMillis() - startTime;
+        Long elapsedTime = 0l;
+        for(int i = 0 ; i < pausedTimes.size() ; i+=2) {
+            if(i + 1 >= pausedTimes.size())
+                elapsedTime += System.currentTimeMillis() - pausedTimes.get(i);
+            else
+                elapsedTime += pausedTimes.get(i + 1) - pausedTimes.get(i);
+        }
+        return elapsedTime;
+    }
+    public float getProgress(){
+        return (float)task_completed_count/pickingData.getTaskCount();
     }
     public void log(String str){
         if(isStudyRunning)

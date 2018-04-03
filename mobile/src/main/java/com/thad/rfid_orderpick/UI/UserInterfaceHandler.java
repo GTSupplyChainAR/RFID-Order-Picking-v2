@@ -2,10 +2,12 @@ package com.thad.rfid_orderpick.UI;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +16,16 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
+import com.thad.rfid_lib.UIRunnables.SetProgressRunnable;
 import com.thad.rfid_lib.UIRunnables.SetTextRunnable;
 import com.thad.rfid_orderpick.MobileClient;
 import com.thad.rfid_orderpick.R;
@@ -80,16 +85,16 @@ public class UserInterfaceHandler {
             deviceLayout.setId(i);
 
             String[] fields = new String[]{"no", "name", "conn", "battery"};
+            float[] weights = new float[]{0.1f, 0.5f, 0.2f, 0.2f};
             for (int j = 0; j < fields.length; j++) {
                 TextView textView = new TextView(mActivity);
 
-                float weight = 2f;
-                if (fields[j].equals("name")) weight = 1f;
-                else textView.setGravity(Gravity.CENTER);
+                if (!fields[j].equals("name"))
+                    textView.setGravity(Gravity.CENTER);
 
                 textView.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT, // Width of TextView
-                        LinearLayout.LayoutParams.WRAP_CONTENT, weight)); // Height of TextView);
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, weights[j]));
+
                 switch (fields[j]) {
                     case "no":
                         textView.setText("" + (i + 1));
@@ -110,6 +115,8 @@ public class UserInterfaceHandler {
                 padding_px = Utils.dp_to_pixels(mActivity, 7);
                 textView.setPadding(padding_px,padding_px,padding_px,padding_px);
                 textView.setTextColor(ContextCompat.getColor(mActivity, R.color.black));
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mActivity.getResources().getDimension(R.dimen.app_text_size));
+                textView.setSingleLine();
                 textView.setBackgroundColor(ContextCompat.getColor(mActivity, R.color.dark_white));
 
                 deviceLayout.addView(textView);
@@ -153,20 +160,24 @@ public class UserInterfaceHandler {
                 LinearLayout deviceList = mActivity.findViewById(R.id.deviceList);
                 Button experimentButton = mActivity.findViewById(R.id.experiment_button);
                 LinearLayout experimentBar = mActivity.findViewById(R.id.experiment_bar);
-                TextView timer = mActivity.findViewById(R.id.timer);
+                LinearLayout timer_layout = mActivity.findViewById(R.id.timer_layout);
                 TextView username = mActivity.findViewById(R.id.username);
+                ProgressBar progressBar = mActivity.findViewById(R.id.progressBar);
                 username.setVisibility(View.GONE);
                 if(experimentRunning) {
                     experimentButton.setText("START");
                     deviceList.setVisibility(View.VISIBLE);
                     experimentBar.setVisibility(View.GONE);
-                    timer.setVisibility(View.GONE);
+                    timer_layout.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
                     experimentRunning = false;
                 }else{
                     experimentButton.setText("STOP");
-                    deviceList.setVisibility(View.GONE);
+                    //deviceList.setVisibility(View.GONE);
                     experimentBar.setVisibility(View.VISIBLE);
-                    timer.setVisibility(View.VISIBLE);
+                    timer_layout.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setProgress(0);
                     if(mClient.isStudyRunning()) {
                         username.setVisibility(View.VISIBLE);
                         username.setText(mClient.getStudyData().getActiveSubject().getName());
@@ -195,6 +206,24 @@ public class UserInterfaceHandler {
                 TextView testing_button = mActivity.findViewById(R.id.testing_button);
                 testing_button.setBackground(mActivity.getResources().getDrawable(R.drawable.red_underline));
                 training_button.setBackgroundColor(Color.BLACK);
+            }
+        });
+    }
+    public void onPause(){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView pausePlayButton = mActivity.findViewById(R.id.pause_play_button);
+                pausePlayButton.setBackground(mActivity.getResources().getDrawable(R.drawable.white_play));
+            }
+        });
+    }
+    public void onResume(){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageView pausePlayButton = mActivity.findViewById(R.id.pause_play_button);
+                pausePlayButton.setBackground(mActivity.getResources().getDrawable(R.drawable.white_pause));
             }
         });
     }
@@ -228,6 +257,11 @@ public class UserInterfaceHandler {
         }else {
             mActivity.runOnUiThread(new SetTextRunnable(timerView, Utils.formatTimestamp(experimentElapsedTime)));
         }
+    }
+
+    public void updateProgress(float progress){
+        ProgressBar progressBar = mActivity.findViewById(R.id.progressBar);
+        mActivity.runOnUiThread(new SetProgressRunnable(progressBar, (int)(progress*100)));
     }
 
 

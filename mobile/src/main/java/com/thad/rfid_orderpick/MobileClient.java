@@ -3,6 +3,7 @@ package com.thad.rfid_orderpick;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.Experiment.ExperimentListener;
@@ -73,10 +74,12 @@ public class MobileClient implements ExperimentListener{
 
     public void onConnect(){
         if(!Prefs.RUN_OFFLINE)
-            mCommHandler.connect();}
+            mCommHandler.connect();
+    }
     public void onDisconnect(){
         if(!Prefs.RUN_OFFLINE)
-            mCommHandler.disconnect();}
+            mCommHandler.disconnect();
+    }
     public void onExperimentClicked(){
         if(mExperiment.isActive())
             stopExperiment();
@@ -102,7 +105,20 @@ public class MobileClient implements ExperimentListener{
             if(!Prefs.RUN_OFFLINE)
                 mCommHandler.startExperiment(isTraining);
             mUI.onExperimentToggled();
+            mUI.onResume();
         }
+    }
+    public void pauseExperiment(){
+        mExperiment.pause();
+        mUI.onPause();
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler.pauseExperiment();
+    }
+    public void resumeExperiment(){
+        mExperiment.resume();
+        mUI.onResume();
+        if(!Prefs.RUN_OFFLINE)
+            mCommHandler.resumeExperiment();
     }
     //END OF USER COMMANDS
 
@@ -124,12 +140,20 @@ public class MobileClient implements ExperimentListener{
         stopExperiment();
         startExperiment(false);
     }
+    public void onPausePlayClicked(){
+        if(mExperiment.isPaused()){
+            resumeExperiment();
+        } else {
+            pauseExperiment();
+        }
+    }
 
 
     //EVENT LISTENERS
     public void onNewRFIDScan(String scan, int strength){
-        mLog("New RFID Scan: "+scan+", Strength: "+strength);
+        //mLog("New RFID Scan: "+scan+", Strength: "+strength);
         mExperiment.onNewScan(scan);
+        mUI.updateProgress(mExperiment.getProgress());
         if(!Prefs.RUN_OFFLINE)
             mCommHandler.sendScan(scan);
     }
@@ -163,6 +187,9 @@ public class MobileClient implements ExperimentListener{
     public StudyData getStudyData(){return mStudyHandler.getStudyData();}
     //END OF GETTERS
 
+    public boolean isExperimentRunning(){return mExperiment.isRunning();}
+    public boolean isExperimentActive(){return mExperiment.isActive();}
+    public boolean isExperimentPaused(){return mExperiment.isPaused();}
 
     @Override
     public ViewGroup getExperimentContainer(){return mUI.getExperimentContainer();}
@@ -174,8 +201,5 @@ public class MobileClient implements ExperimentListener{
     public void onFakeScan(String scan){onNewRFIDScan(scan, 255);}
     public boolean isGlass(){return false;}
     public void playSound(Utils.SOUNDS sound){}
-
-
-
 
 }

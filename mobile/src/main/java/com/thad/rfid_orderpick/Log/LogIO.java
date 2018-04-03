@@ -31,6 +31,9 @@ public class LogIO {
     public LogIO(Context context){
         this.context = context;
         dir = context.getExternalFilesDir(null);
+        File experiment_log_dir = new File(dir, "experiment_logs");
+        if(!experiment_log_dir.exists())
+            experiment_log_dir.mkdirs();
     }
 
     public StudyData readStudyData(){
@@ -38,6 +41,7 @@ public class LogIO {
             Log.e(TAG, "Storage not readable");
             return null;
         }
+
         StudyData studyData = new StudyData();
         try {
             String jsonStr = readExternal(Prefs.USER_STUDY_FILENAME);

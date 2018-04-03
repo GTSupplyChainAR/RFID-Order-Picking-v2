@@ -52,6 +52,16 @@ public class PickingData {
         }
         return null;
     }
+    public float getProgress(PickingTask activeTask) {
+        int index = 0;
+        for (int i = 0; i < pickingTasks.size(); i++){
+            if (pickingTasks.get(i).getID() == activeTask.getID()) {
+                index = i;
+                break;
+            }
+        }
+        return (float)(index+1)/pickingTasks.size();
+    }
     public int getTaskCount(){return pickingTasks.size();}
 
     public PickingOrder getRandomOrder(){

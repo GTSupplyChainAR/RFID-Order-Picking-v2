@@ -8,6 +8,7 @@
     android:background="@color/black"
     tools:context="com.thad.rfid_orderpick.MobileMainActivity">
 
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
@@ -17,6 +18,7 @@
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
 
     <LinearLayout
         android:id="@+id/deviceList"
@@ -31,34 +33,42 @@
             android:padding="3dp">
             <TextView
                 android:text="#"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="0.1"
+                android:singleLine="true"
                 android:gravity="center"
                 android:textColor="@color/white"
+                android:textSize="@dimen/app_text_size"
                 android:background="#555555"/>
             <TextView
                 android:text="Devices"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
+                android:singleLine="true"
                 android:textColor="@color/white"
+                android:textSize="@dimen/app_text_size"
                 android:background="#555555"/>
             <TextView
                 android:text="Conn"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="0.2"
+                android:singleLine="true"
                 android:gravity="center"
                 android:textColor="@color/white"
+                android:textSize="@dimen/app_text_size"
                 android:background="#555555"/>
             <TextView
                 android:text="Battery"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="0.2"
+                android:singleLine="true"
                 android:gravity="center"
                 android:textColor="@color/white"
+                android:textSize="@dimen/app_text_size"
                 android:background="#555555"/>
         </LinearLayout>
 
@@ -81,26 +91,34 @@
             <Button
                 android:id="@+id/connect"
                 android:text="Connect"
-                android:layout_width="wrap_content"
+                android:singleLine="true"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.9"
                 android:onClick="onConnect"/>
             <Button
                 android:id="@+id/disconnect"
                 android:text="Disconnect"
-                android:layout_width="wrap_content"
+                android:singleLine="true"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:onClick="onDisconnect"/>
             <Button
                 android:id="@+id/log"
                 android:text="LOG"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:singleLine="true"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.7"
                 android:onClick="onLogClicked"/>
             <Button
                 android:id="@+id/experiment_button"
                 android:text="START"
-                android:layout_width="wrap_content"
+                android:singleLine="true"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="0.7"
                 android:onClick="onExperimentClicked"/>
         </LinearLayout>
 
@@ -124,6 +142,7 @@
                 android:layout_weight="1"
                 android:paddingBottom="5dp"
                 android:textColor="@color/white"
+                android:textSize="@dimen/app_large_text_size"
                 android:onClick="onTrainingClicked"
                 android:background="@drawable/red_underline"/>
 
@@ -136,6 +155,7 @@
                 android:layout_weight="1"
                 android:paddingBottom="5dp"
                 android:textColor="@color/white"
+                android:textSize="@dimen/app_large_text_size"
                 android:onClick="onTestingClicked"
                 android:background="@color/black"/>
         </LinearLayout>
@@ -149,22 +169,38 @@
         android:layout_height="wrap_content"
         android:padding="5dp"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="@dimen/app_large_text_size"
         android:textAlignment="center"
         android:visibility="gone"
         android:text="User Name"/>
 
     <!-- TIMER & PAUSE button -->
-    <TextView
-        android:id="@+id/timer"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/timer_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:layout_gravity="center"
-        android:text="00:00:00"/>
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/app_large_text_size"
+            android:text="00:00:00"/>
+
+        <ImageView
+            android:id="@+id/pause_play_button"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/white_pause"
+            android:onClick="onPausePlayClicked"/>
+
+    </LinearLayout>
 
     <!--  EXPERIMENT VIEW   -->
     <LinearLayout
@@ -173,6 +209,16 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:visibility="gone"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:progress="25"
+        android:progressTint="@color/green"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <!-- LOG -->
     <TextView

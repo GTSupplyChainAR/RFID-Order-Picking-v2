@@ -33,6 +33,13 @@ public class Prefs {
     public static final int FADED_GLOW_DURATION = 3000; // in milliseconds
     public static final boolean REVERSED_FADED_RACKS = false;
 
+    //Percentages of cell height
+    public static final float TEXT_SIZE_TAG = 0.2f;
+    public static final float TEXT_SIZE_TAG_GLASS = 0.3f;
+    public static final float TEXT_SIZE_CELL = 0.24f;
+    public static final float TEXT_SIZE_CELL_GLASS = 0.33f;
+    public static final float CART_TEXT_BOTTOM_OFFSET = 0.03f;
+
     //ID of logs and subjects
     public static final int ID_DIGIT_NUM = 4;
 

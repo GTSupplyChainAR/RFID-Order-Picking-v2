@@ -3,11 +3,15 @@
     <dimen name="corners">1dp</dimen>
     <dimen name="cell_border_width">2dp</dimen>
     <dimen name="fill_padding_width">4dp</dimen>
+
     <dimen name="rack_cell_text">5dp</dimen>
     <dimen name="cart_cell_text">6dp</dimen>
     <dimen name="tag_text">4dp</dimen>
+
     <dimen name="glass_tag_text">9dp</dimen>
     <dimen name="glass_rack_cell_text">10dp</dimen>
     <dimen name="glass_cart_cell_text">12dp</dimen>
-    <dimen name="button_text_size">10sp</dimen>
+
+    <dimen name="app_text_size">15sp</dimen>
+    <dimen name="app_large_text_size">20sp</dimen>
 </resources>

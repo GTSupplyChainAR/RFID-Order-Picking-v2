@@ -7,6 +7,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 
 import com.thad.rfid_lib.R;
+import com.thad.rfid_lib.Static.Utils;
 
 /**
  * Created by theo on 3/4/18.
@@ -18,6 +19,7 @@ public class CellDrawable {
     private enum STATES {EMPTY, FILLED, CROSSED, CHECKED}
 
     private Activity activity;
+    private CellUI cellUI;
 
     private GradientDrawable borderDrawable, fillDrawable;
     private LayerDrawable layerDrawable;
@@ -26,9 +28,10 @@ public class CellDrawable {
     private STATES state;
     private int color;
 
-    public CellDrawable(Context context, int color){
+    public CellDrawable(Context context, CellUI cellUI){
         this.activity = (Activity)context;
-        this.color = color;
+        this.cellUI  = cellUI;
+        this.color = cellUI.getColorId();
 
         border_width = (int) context.getResources().getDimension(R.dimen.cell_border_width);
         fill_padding = (int) context.getResources().getDimension(R.dimen.fill_padding_width);
@@ -102,9 +105,11 @@ public class CellDrawable {
             public void run() {
                 state = STATES.CROSSED;
                 Drawable[] layers = {borderDrawable, redCross};
+                int width_offset = (int)(cellUI.getDims()[0] * 0.6f / 2.f);
+                int height_offset = (int)(width_offset*0.75);
                 layerDrawable = new LayerDrawable(layers);
                 layerDrawable.setLayerInset(0, 0, 0, 0, 0);
-                layerDrawable.setLayerInset(1, 25, 20, 25, 20);
+                layerDrawable.setLayerInset(1, width_offset, height_offset, width_offset, height_offset);
             }
         });
     }

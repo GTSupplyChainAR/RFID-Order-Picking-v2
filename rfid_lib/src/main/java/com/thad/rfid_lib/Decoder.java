@@ -30,6 +30,8 @@ public class Decoder {
         STARTTRAIN,
         STARTTEST,
         STOP,
+        PAUSE,
+        RESUME,
         TAP
     }
 

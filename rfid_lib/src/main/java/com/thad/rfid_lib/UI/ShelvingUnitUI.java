@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -220,11 +221,12 @@ public class ShelvingUnitUI extends LinearLayout {
         tag_view.setPadding(12*padding_px, padding_px, 12*padding_px, padding_px);
         tag_view.setTextColor(Color.BLACK);
         tag_view.setGravity(Gravity.CENTER);
-        int text_size = R.dimen.tag_text;
+
+        int text_size = (int) (cell_height * Prefs.TEXT_SIZE_TAG);
         if(experiment.isGlass())
-            text_size = R.dimen.glass_tag_text;
-        tag_view.setTextSize(Utils.dp_to_pixels(context,
-                context.getResources().getDimension(text_size)));
+            text_size = (int) (cell_height * Prefs.TEXT_SIZE_TAG_GLASS);
+        tag_view.setTextSize(TypedValue.COMPLEX_UNIT_DIP, text_size);
+
         tag_view.setTypeface(Typeface.DEFAULT_BOLD);
         tag_view.setText(tag);
 

@@ -104,7 +104,8 @@ public class CommunicationHandler {
     public void stopExperiment(){
         mGlassBT.sendMessage(Decoder.MSG_TAG.STOP, "");
     }
-
+    public void pauseExperiment(){ mGlassBT.sendMessage(Decoder.MSG_TAG.PAUSE, "");}
+    public void resumeExperiment(){ mGlassBT.sendMessage(Decoder.MSG_TAG.RESUME, "");}
 
     //EVENT LISTENERS
     public void onNewRFIDScan(String scan, int strength) {
@@ -116,7 +117,9 @@ public class CommunicationHandler {
     }
     //END OF LISTENERS
 
-
+    public boolean isConnected(boolean[] states){
+        return states[0] && states[1] && states[2];
+    }
 
     //GETTERS
     public Context getContext() {
@@ -136,6 +139,15 @@ public class CommunicationHandler {
                 continue;
             mClient.deviceConnUpdate(i, new_connStates[i]);
         }
+
+        if(isConnected(connState) && !isConnected(new_connStates) && mClient.isExperimentActive()) {
+            Log.d(TAG, "Pausing the experiment due to disconnection.");
+            mClient.pauseExperiment();
+        } else if(!isConnected(connState) && isConnected(new_connStates) && mClient.isExperimentPaused()) {
+            Log.d(TAG, "Resuming the experiment after re-connecting.");
+            mClient.resumeExperiment();
+        }
+
         connState = new_connStates;
         return connState;
     }

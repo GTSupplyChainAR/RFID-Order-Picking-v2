@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 
 import com.thad.rfid_lib.Static.Prefs;
@@ -33,6 +34,7 @@ public class MobileMainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_mobile_main);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -97,8 +99,6 @@ public class MobileMainActivity extends AppCompatActivity{
     public void onLogClicked(View view){Log.d(TAG, "onLogClicked"); mClient.onLogClicked();}
     public void onTrainingClicked(View v){Log.d(TAG, "onTrainingClicked"); mClient.onTrainingClicked();}
     public void onTestingClicked(View v){Log.d(TAG, "onTestingClicked"); mClient.onTestingClicked();}
-
-
-
+    public void onPausePlayClicked(View v){Log.d(TAG, "onPausePlayClicked"); mClient.onPausePlayClicked();}
 
 }

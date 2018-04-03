@@ -1,8 +1,10 @@
 package com.thad.rfid_lib.UI;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 
 import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.R;
+import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UIRunnables.SetTextRunnable;
 
@@ -54,11 +57,11 @@ public class CellUI {
         cellView.setTextColor(Color.WHITE);
         cellView.setTypeface(Typeface.DEFAULT_BOLD);
 
-        rack_text_size = R.dimen.rack_cell_text;
-        cart_text_size = R.dimen.cart_cell_text;
+        rack_text_size = (int) (height * Prefs.TEXT_SIZE_CELL);
+        cart_text_size = (int) (height * Prefs.TEXT_SIZE_CELL);
         if(experiment.isGlass()){
-            rack_text_size = R.dimen.glass_rack_cell_text;
-            cart_text_size = R.dimen.glass_cart_cell_text;
+            rack_text_size = (int) (height * Prefs.TEXT_SIZE_CELL_GLASS);
+            cart_text_size = (int) (height * Prefs.TEXT_SIZE_CELL_GLASS);
         }
 
         updateTextStyle();
@@ -71,21 +74,19 @@ public class CellUI {
             }
         });
 
-        cellDrawable = new CellDrawable(activity, color_id);
+        cellDrawable = new CellDrawable(activity, this);
 
         empty();
     }
 
     private void updateTextStyle(){
         if(!isCart) {
-            cellView.setTextSize(Utils.dp_to_pixels(activity,
-                    activity.getResources().getDimension(rack_text_size)));
+            cellView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, rack_text_size);
             cellView.setGravity(Gravity.CENTER);
         }else{
-            cellView.setTextSize(Utils.dp_to_pixels(activity,
-                    activity.getResources().getDimension(cart_text_size)));
+            cellView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, cart_text_size);
             cellView.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-            cellView.setPadding(0 ,0, 0, Utils.dp_to_pixels(activity, 3));
+            cellView.setPadding(0 ,0, 0, (int)(height * Prefs.CART_TEXT_BOTTOM_OFFSET));
         }
 
         if((tag.charAt(1) == '2' || tag.charAt(1) == '3') && !isCart) {
@@ -115,6 +116,7 @@ public class CellUI {
             });
         }
     }
+
     public void empty(){
         if(!isCart) {
             activity.runOnUiThread(new Runnable() {
@@ -140,6 +142,7 @@ public class CellUI {
             }
         });
     }
+
     public void toggleCross() {
         if (!isCart){
             activity.runOnUiThread(new Runnable() {
@@ -158,6 +161,7 @@ public class CellUI {
             });
         }
     }
+
     public void addCheck(){
         cellDrawable.addCheck();
         activity.runOnUiThread(new Runnable() {
@@ -182,6 +186,7 @@ public class CellUI {
     public void setSize(int width, int height){this.width = width; this.height = height;}
     public void setTag(String tag){this.tag = tag;}
 
-
+    public int getColorId(){return color_id;}
+    public int[] getDims(){return new int[]{width, height};}
 
 }
