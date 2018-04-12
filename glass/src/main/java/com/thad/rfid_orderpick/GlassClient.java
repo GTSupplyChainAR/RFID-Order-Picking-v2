@@ -49,6 +49,7 @@ public class GlassClient implements ExperimentListener {
     }
 
     public void shutdown(){
+        Log.e(TAG, "Shutting down.");
         onDestroyed = true;
         mCommHandler.shutdown();
     }
@@ -82,14 +83,19 @@ public class GlassClient implements ExperimentListener {
 
     public void onConnected(){
         mUI.onConnected();
+        if(mExperiment.isPaused())
+            mExperiment.resume();
     }
 
     public void onConnectionLost() {
-        if(onDestroyed) {
+        Log.e(TAG, "On Connection Lost.");
+        if(onDestroyed || !mExperiment.isRunning()) {
+            Log.e(TAG, "When it was on destroyed.");
             stopExperiment();
             mUI = new UserInterfaceHandler(this);
             mCommHandler = new CommunicationHandler(this);
         }else{
+            Log.e(TAG, "When it was NOT destroyed.");
             pauseExperiment();
             mCommHandler = new CommunicationHandler(this);
         }

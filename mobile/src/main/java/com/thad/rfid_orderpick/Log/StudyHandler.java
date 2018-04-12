@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.security.auth.Subject;
+
 /**
  * Created by theo on 3/14/18.
  */
@@ -39,10 +41,13 @@ public class StudyHandler {
 
     private void init() {
         studyData = logIO.readStudyData();
-        //logIO.deleteAllLogFiles();
-        //studyData.deleteAll(logIO);
-        //studyData = new StudyData();
-        //logIO.saveStudyData(studyData);
+
+        if(false) {
+            logIO.deleteAllLogFiles();
+            studyData.deleteAll(logIO);
+            studyData = new StudyData();
+            logIO.saveStudyData(studyData);
+        }
     }
 
 
@@ -57,13 +62,14 @@ public class StudyHandler {
         return log;
     }
 
-    public void onSubjectCreated(String username){
-        studyData.addSubject(new StudySubject(getUniqueID(), username));
-        isStudyRunning = true;
-        autosave();
-    }
     public void onSubjectSelected(String username){
-        studyData.selectSubject(studyData.getSubject(username));
+        StudySubject selected = studyData.getSubject(username);
+        if(selected == null){
+            studyData.addSubject(new StudySubject(getUniqueID(), username));
+            autosave();
+        }else {
+            studyData.selectSubject(selected);
+        }
         isStudyRunning = true;
     }
 
@@ -71,6 +77,7 @@ public class StudyHandler {
     public List<String> getSubjectNames(){
         return studyData.getNames();
     }
+    public StudySubject getActiveSubject(){return studyData.getActiveSubject();}
 
     public void autosave(){
         logIO.saveStudyData(studyData);

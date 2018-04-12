@@ -8,5 +8,5 @@
     <color name="dark_gray">#333</color>
     <color name="faded_rack_gray">#F666</color>
     <color name="faded_rack_fill_red">#FF00</color>
-    <color name="checked_cell_text">#444</color>
+    <color name="checked_cell_text">#666</color>
 </resources>

@@ -28,7 +28,7 @@ public class StudyData {
         for(int i = 0 ; i < subjectsJSON.length() ; i++) {
             JSONObject subjectJSON = subjectsJSON.getJSONObject(i);
             StudySubject studySubject = new StudySubject(subjectJSON);
-            addSubject(studySubject);
+            subjects.add(studySubject);
         }
     }
 

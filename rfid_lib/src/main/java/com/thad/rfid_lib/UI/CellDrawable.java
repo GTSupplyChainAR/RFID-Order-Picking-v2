@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.util.Log;
 
 import com.thad.rfid_lib.R;
 import com.thad.rfid_lib.Static.Utils;
@@ -14,6 +15,7 @@ import com.thad.rfid_lib.Static.Utils;
  */
 
 public class CellDrawable {
+    private static final String TAG = "|CellDrawable|";
     private static int border_width, fill_padding, border_radii;
 
     private enum STATES {EMPTY, FILLED, CROSSED, CHECKED}
@@ -23,14 +25,15 @@ public class CellDrawable {
 
     private GradientDrawable borderDrawable, fillDrawable;
     private LayerDrawable layerDrawable;
-    private Drawable redCross, redArrow, greenCheck;
+    private Drawable redCross, redArrow, arrowColSymbol, greenCheck;
 
     private STATES state;
     private int color;
+    boolean isLeftEdge = false, isRightEdge = false;
 
-    public CellDrawable(Context context, CellUI cellUI){
-        this.activity = (Activity)context;
-        this.cellUI  = cellUI;
+    public CellDrawable(Context context, CellUI cellUI) {
+        this.activity = (Activity) context;
+        this.cellUI = cellUI;
         this.color = cellUI.getColorId();
 
         border_width = (int) context.getResources().getDimension(R.dimen.cell_border_width);
@@ -49,6 +52,20 @@ public class CellDrawable {
         redCross = context.getResources().getDrawable(R.drawable.red_cross);
         greenCheck = context.getResources().getDrawable(R.drawable.green_check);
 
+        int[] pos = Utils.tagToPos(cellUI.getTag());
+        arrowColSymbol = context.getResources().getDrawable(R.drawable.symbol_col_default);
+
+        isRightEdge = false; isLeftEdge = false;
+        if (pos[1] == 0) {
+            isLeftEdge = true;
+            arrowColSymbol = context.getResources().getDrawable(R.drawable.symbol_col_left);
+        } else if (pos[1] + 1 == cellUI.getExperiment().getWarehouseData().
+                getUnitByTag(Utils.tagToLetter(cellUI.getTag()))
+                .getDimensions()[1]) {
+            isRightEdge = true;
+            arrowColSymbol = context.getResources().getDrawable(R.drawable.symbol_col_right);
+        }
+
         empty();
     }
 
@@ -58,10 +75,16 @@ public class CellDrawable {
             public void run() {
                 state = STATES.FILLED;
                 fillDrawable.setColor(activity.getResources().getColor(color));
-                Drawable[] layers = {borderDrawable, fillDrawable};
+                Drawable[] layers = {borderDrawable, fillDrawable, arrowColSymbol};
                 layerDrawable = new LayerDrawable(layers);
                 layerDrawable.setLayerInset(0, 0, 0, 0, 0);
                 layerDrawable.setLayerInset(1, fill_padding, fill_padding, fill_padding, fill_padding);
+
+                int w = cellUI.getDims()[0], h = cellUI.getDims()[1];
+                arrowColSymbol.setAlpha(250);
+                layerDrawable.setLayerInset(2, (int)(0.7f*w), (int)(0.6f* h), 0, 0);
+                if(isLeftEdge)
+                    layerDrawable.setLayerInset(2, 0, (int)(0.6f* h), (int)(0.7f*w), 0);
             }
         });
     }
@@ -120,10 +143,16 @@ public class CellDrawable {
             public void run() {
                 state = STATES.CHECKED;
                 fillDrawable.setColor(activity.getResources().getColor(R.color.dark_gray));
-                Drawable[] layers = {borderDrawable, fillDrawable};
+                Drawable[] layers = {borderDrawable, fillDrawable, arrowColSymbol};
                 layerDrawable = new LayerDrawable(layers);
                 layerDrawable.setLayerInset(0, 0, 0, 0, 0);
                 layerDrawable.setLayerInset(1, fill_padding, fill_padding, fill_padding, fill_padding);
+
+                arrowColSymbol.setAlpha(70);
+                int w = cellUI.getDims()[0], h = cellUI.getDims()[1];
+                layerDrawable.setLayerInset(2, (int)(0.7f*w), (int)(0.6f* h), 0, 0);
+                if(isLeftEdge)
+                    layerDrawable.setLayerInset(2, 0, (int)(0.6f* h), (int)(0.7f*w), 0);
             }
         });
     }

@@ -14,9 +14,12 @@ import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.Communications.CommunicationHandler;
 import com.thad.rfid_orderpick.Log.StudyData;
 import com.thad.rfid_orderpick.Log.StudyHandler;
+import com.thad.rfid_orderpick.Log.StudySubject;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
 import java.util.List;
+
+import javax.security.auth.Subject;
 
 /**
  * This class keeps track of the experiment.
@@ -81,7 +84,7 @@ public class MobileClient implements ExperimentListener{
             mCommHandler.disconnect();
     }
     public void onExperimentClicked(){
-        if(mExperiment.isActive())
+        if(mExperiment.isRunning())
             stopExperiment();
         else
             startExperiment(true);
@@ -92,6 +95,7 @@ public class MobileClient implements ExperimentListener{
             if(!Prefs.RUN_OFFLINE)
                 mCommHandler.stopExperiment();
             mUI.onExperimentToggled();
+            mUI.onTrainingSelected();
         }
     }
     private void startExperiment(boolean isTraining){
@@ -131,13 +135,13 @@ public class MobileClient implements ExperimentListener{
         mUI.editLogPopup();
     }
     public void onTrainingClicked(){
-        mUI.onTrainingSelected();
         stopExperiment();
+        mUI.onTrainingSelected();
         startExperiment(true);
     }
     public void onTestingClicked(){
-        mUI.onTestingSelected();
         stopExperiment();
+        mUI.onTestingSelected();
         startExperiment(false);
     }
     public void onPausePlayClicked(){
@@ -166,9 +170,9 @@ public class MobileClient implements ExperimentListener{
     }
     //END OF LISTENERS
 
-    public void onSubjectCreated(String username){ mStudyHandler.onSubjectCreated(username);}
     public void onSubjectSelected(String username){ mStudyHandler.onSubjectSelected(username);}
     public List<String> getSubjectNames(){ return mStudyHandler.getSubjectNames(); }
+    public StudySubject getActiveSubject(){return mStudyHandler.getActiveSubject();}
 
     //GETTERS
     public String[] getAddresses(){

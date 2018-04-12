@@ -188,5 +188,7 @@ public class CellUI {
 
     public int getColorId(){return color_id;}
     public int[] getDims(){return new int[]{width, height};}
+    public String getTag(){return tag;}
+    public Experiment getExperiment(){return experiment;}
 
 }

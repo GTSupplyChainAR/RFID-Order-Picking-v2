@@ -78,7 +78,7 @@ public class Experiment {
         return start();
     }
     private boolean start(){
-        if(isActive())
+        if(isRunning())
             return false;
 
         print("Experiment Starting...");
@@ -109,7 +109,7 @@ public class Experiment {
         return true;
     }
     public boolean stop(){
-        if(!isActive())
+        if(!isRunning())
             return false;
 
         print("Experiment Stopping...");
@@ -154,6 +154,7 @@ public class Experiment {
         }
         startTime = null;
         pickingData.reset();
+        pickingData = pickingDataTraining;
         itemsOnHand.clear();
         wrongScans.clear();
         pausedTimes.clear();

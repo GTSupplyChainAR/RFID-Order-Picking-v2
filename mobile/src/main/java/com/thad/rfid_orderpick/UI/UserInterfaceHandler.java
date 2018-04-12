@@ -386,6 +386,8 @@ public class UserInterfaceHandler {
         dropdown.setAdapter(adapter);
 
         final EditText userInput = promptsView.findViewById(R.id.user_input_name);
+        if(mClient.getActiveSubject() != null)
+            userInput.setText(mClient.getActiveSubject().getName());
 
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -405,16 +407,9 @@ public class UserInterfaceHandler {
                 .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                int dropdown_pos = dropdown.getSelectedItemPosition();
-                                if(dropdown_pos == 0){
-                                    String username = String.valueOf(userInput.getText());
-                                    if(username.length() == 0)
-                                        return;
-                                    Log.d(TAG, "New subject -> "+username);
-                                    mClient.onSubjectCreated(username);
-                                }else{
-                                    Log.d(TAG, "Item selected "+dropdown_pos+" - "+dropdown.getSelectedItem());
-                                    mClient.onSubjectSelected(String.valueOf(dropdown.getSelectedItem()));
+                                String username = String.valueOf(userInput.getText());
+                                if(username.length() != 0) {
+                                    mClient.onSubjectSelected(username);
                                 }
                             }
                         })

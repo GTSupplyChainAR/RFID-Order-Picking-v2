@@ -36,8 +36,8 @@ public class Prefs {
     //Percentages of cell height
     public static final float TEXT_SIZE_TAG = 0.2f;
     public static final float TEXT_SIZE_TAG_GLASS = 0.3f;
-    public static final float TEXT_SIZE_CELL = 0.24f;
-    public static final float TEXT_SIZE_CELL_GLASS = 0.33f;
+    public static final float TEXT_SIZE_CELL = 0.26f;
+    public static final float TEXT_SIZE_CELL_GLASS = 0.37f;
     public static final float CART_TEXT_BOTTOM_OFFSET = 0.03f;
 
     //ID of logs and subjects
@@ -47,6 +47,6 @@ public class Prefs {
     public static final String EXPERIMENT_LOGS_FOLDER = "experiment_logs";
     public static final String USER_STUDY_FILENAME = "user_study.json";
     public static final String WAREHOUSE_DATA_FILENAME = "warehouse.json";
-    public static final String PICK_DATA_TESTING_FILENAME = "pick_tasks_testing.json";
-    public static final String PICK_DATA_TRAINING_FILENAME = "pick_tasks_training.json";
+    public static final String PICK_DATA_TESTING_FILENAME = "tasks-pick-by-hud_rfid-testing.json";
+    public static final String PICK_DATA_TRAINING_FILENAME = "tasks-pick-by-hud_rfid-training.json";
 }

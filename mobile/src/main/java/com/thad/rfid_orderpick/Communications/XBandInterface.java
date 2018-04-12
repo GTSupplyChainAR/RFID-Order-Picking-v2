@@ -1,10 +1,13 @@
 package com.thad.rfid_orderpick.Communications;
 
+import android.util.Log;
+
 import com.thad.rfid_lib.Static.Prefs;
 
 import de.ubimax.xbandtest.xband.XBandConnectionHandler;
 import de.ubimax.xbandtest.xband.XBandEventListener;
 import de.ubimax.xbandtest.xband.XBandIMUData;
+import de.ubimax.xbandtest.xband.XBandProperty;
 
 /**
  * Created by theo on 1/25/18.
@@ -14,6 +17,7 @@ public class XBandInterface implements XBandEventListener {
     private static final String TAG = "|XBandInterface|";
     private static int xbandCount = 0;
 
+    private Long lastIMUtimestamp;
 
     private CommunicationHandler mCommHandler;
 
@@ -37,6 +41,8 @@ public class XBandInterface implements XBandEventListener {
             xBandHandler.registerEventListener(this);
             xBandHandler.setTagTimeoutInSeconds(Prefs.RFID_TIMEOUT);
             xBandHandler.setInitialReaderPower(Prefs.RFID_POWER);
+        }else{
+            Log.e(TAG, "Device does not support Bluetooth. Failed to create Xband Handlers.");
         }
     }
 
@@ -57,6 +63,10 @@ public class XBandInterface implements XBandEventListener {
     }
 
     public boolean isConnected(){
+        /*Log.d(TAG, "XBand "+index
+                +", isConnected-"+xBandHandler.isConnected()
+                +", isConnecting-"+xBandHandler.isConnecting()
+                +", isSearching-"+xBandHandler.isSearching());*/
         return xBandHandler.isConnected();
     }
 
@@ -81,5 +91,14 @@ public class XBandInterface implements XBandEventListener {
     public void onTagWriteResponse(String s) {}
 
     @Override
-    public void onNewIMUEntry(XBandIMUData xBandIMUData) {}
+    public void onNewIMUEntry(XBandIMUData xBandIMUData) {
+        if(lastIMUtimestamp == null)
+            lastIMUtimestamp = System.currentTimeMillis();
+
+
+        long curr = System.currentTimeMillis() - lastIMUtimestamp;
+        Log.d(TAG, curr+" || XBand "+index+" has new data - "+
+        "Accelerometer ("+xBandIMUData.getAccelerometerX()+", "+xBandIMUData.getAccelerometerY() +", "+xBandIMUData.getAccelerometerZ());
+        lastIMUtimestamp = System.currentTimeMillis();
+    }
 }
