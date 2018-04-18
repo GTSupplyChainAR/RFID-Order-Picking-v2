@@ -1,19 +1,14 @@
 package com.thad.rfid_orderpick.UI;
 
 import android.app.Activity;
-import android.content.ContentProvider;
-import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.thad.rfid_lib.Data.PickingOrder;
 import com.thad.rfid_lib.UIRunnables.SetTextRunnable;
 import com.thad.rfid_orderpick.GlassClient;
-import com.thad.rfid_orderpick.GlassMainActivity;
 import com.thad.rfid_orderpick.R;
 
 /**

@@ -2,14 +2,9 @@ package com.thad.rfid_orderpick.Communications;
 
 import android.util.Log;
 
-import com.thad.rfid_lib.Data.PickingData;
-import com.thad.rfid_lib.Data.PickingOrder;
-import com.thad.rfid_lib.Data.WarehouseData;
 import com.thad.rfid_lib.Decoder;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_orderpick.GlassClient;
-
-import org.json.JSONException;
 
 
 /**
@@ -47,13 +42,17 @@ public class CommunicationHandler {
             case SCAN:
                 mClient.onNewScan(msgString);
                 break;
-            case STARTTRAIN:
-                Log.d(TAG, "Received order to start training experiment!");
-                mClient.startExperiment(true);
+            case START:
+                Log.d(TAG, "Received order to start experiment!");
+                mClient.startExperiment();
                 break;
-            case STARTTEST:
-                Log.d(TAG, "Received order to start testing experiment!");
-                mClient.startExperiment(false);
+            case TRAIN:
+                Log.d(TAG, "Received order to set data to Training!");
+                mClient.setTraining();
+                break;
+            case TEST:
+                Log.d(TAG, "Received order to set data to Testing!");
+                mClient.setTesting();
                 break;
             case STOP:
                 Log.d(TAG, "Received order to stop experiment!");

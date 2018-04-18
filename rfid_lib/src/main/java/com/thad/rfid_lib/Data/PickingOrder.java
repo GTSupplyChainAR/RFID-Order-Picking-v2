@@ -1,7 +1,6 @@
 package com.thad.rfid_lib.Data;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 

@@ -3,7 +3,6 @@ package com.thad.rfid_orderpick.Log;
 import android.util.Log;
 
 import com.thad.rfid_lib.Experiment.ExperimentLog;
-import com.thad.rfid_lib.Experiment.Experiment;
 
 import org.json.JSONArray;
 import org.json.JSONException;

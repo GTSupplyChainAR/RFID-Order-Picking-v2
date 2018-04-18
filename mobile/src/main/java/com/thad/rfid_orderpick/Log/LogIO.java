@@ -1,7 +1,6 @@
 package com.thad.rfid_orderpick.Log;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.thad.rfid_lib.Static.Prefs;

@@ -1,9 +1,7 @@
 package com.thad.rfid_lib.UIRunnables;
 
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 /**
  * Created by theo on 3/5/18.

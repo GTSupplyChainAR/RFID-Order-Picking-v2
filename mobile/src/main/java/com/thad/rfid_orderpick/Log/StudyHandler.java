@@ -1,18 +1,14 @@
 package com.thad.rfid_orderpick.Log;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.thad.rfid_lib.Experiment.ExperimentLog;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.MobileClient;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import javax.security.auth.Subject;
 
 /**
  * Created by theo on 3/14/18.
@@ -42,7 +38,7 @@ public class StudyHandler {
     private void init() {
         studyData = logIO.readStudyData();
 
-        if(false) {
+        if(true) {
             logIO.deleteAllLogFiles();
             studyData.deleteAll(logIO);
             studyData = new StudyData();

@@ -27,8 +27,9 @@ public class Decoder {
 
     public enum MSG_TAG {
         SCAN,
-        STARTTRAIN,
-        STARTTEST,
+        START,
+        TRAIN,
+        TEST,
         STOP,
         PAUSE,
         RESUME,

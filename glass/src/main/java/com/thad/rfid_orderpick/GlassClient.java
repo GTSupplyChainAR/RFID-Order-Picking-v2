@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import com.google.android.glass.media.Sounds;
-import com.thad.rfid_lib.Data.PickingData;
-import com.thad.rfid_lib.Data.WarehouseData;
 import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.Experiment.ExperimentListener;
 import com.thad.rfid_lib.Experiment.ExperimentLog;
@@ -42,8 +40,6 @@ public class GlassClient implements ExperimentListener {
         mFileIO = new FileIO(mContext);
 
         mExperiment = new Experiment(this);
-
-
         mExperiment.setData(mFileIO.loadWarehouseData(),
                    mFileIO.loadPickingDataTraining(), mFileIO.loadPickingDataTesting());
     }
@@ -54,27 +50,18 @@ public class GlassClient implements ExperimentListener {
         mCommHandler.shutdown();
     }
 
-    public void startExperiment(boolean isTraining){
-        boolean canStart;
-        if(isTraining)
-            canStart = mExperiment.startTraining();
-        else
-            canStart = mExperiment.startTesting();
-
-        if(canStart){
-            Log.d(TAG, "Starting Experiment.");
+    public void startExperiment(){
+        if(mExperiment.start())
             mUI.onExperimentStarted();
-        }
     }
     public void stopExperiment(){
-        boolean canStop = mExperiment.stop();
-        if(canStop) {
-            Log.d(TAG, "Stopping Experiment.");
+        if(mExperiment.stop())
             mUI.onExperimentStopped();
-        }
     }
     public void pauseExperiment(){ mExperiment.pause(); }
     public void resumeExperiment(){ mExperiment.resume(); }
+    public void setTraining(){ mExperiment.setTraining(); }
+    public void setTesting(){ mExperiment.setTesting(); }
 
     public void onTap(){
         mExperiment.errorFixed();

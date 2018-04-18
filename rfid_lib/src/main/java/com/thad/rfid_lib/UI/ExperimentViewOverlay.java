@@ -28,10 +28,6 @@ import java.util.HashMap;
 public class ExperimentViewOverlay extends RelativeLayout{
     private static final String TAG = "|ExperimentViewOverlay|";
 
-    //private static final int[][] hardcoded_positions = new int[][]{{445,212}, {305,212}, {585,212},
-    //                                                                {445,312}, {305,312}, {585,312}};
-    //private static final int[][] hardcoded_positions = new int[][]{{222,106}, {152,106}, {292,106},
-    //                                                                {222,156}, {152,156}, {292,156}};
     private static final float[][] hardcoded_positions = new float[][]{{0.45f,0.5f}, {0.65f,0.5f}, {0.83f,0.5f},
                                                                    {0.45f,0.75f}, {0.65f,0.75f}, {0.83f,0.75f}};
     //LAYOUT PARAMS
@@ -41,20 +37,45 @@ public class ExperimentViewOverlay extends RelativeLayout{
     private Activity activity;
     private Experiment experiment;
 
-    public ExperimentViewOverlay(Experiment experiment) {
+    private TextView message;
+
+    public ExperimentViewOverlay(Experiment experiment, boolean isSimple) {
         super(experiment.getContext());
         this.activity = experiment.getActivity();
         this.experiment = experiment;
-        init();
+        if(isSimple)
+            initSimple();
+        else
+            initErrorOverlay();
     }
 
-    private void init(){
+    public void initSimple(){
+        this.setLayoutParams(new LayoutParams(MP, MP));
+        this.setBackgroundColor(Color.argb(150, 0,0,0));
+
+        message = new TextView(activity);
+        message.setLayoutParams(new LayoutParams(MP, MP));
+        message.setGravity(Gravity.CENTER);
+        message.setTextSize(40);
+        message.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        message.setTextColor(Color.WHITE);
+        message.setShadowLayer(Utils.dp_to_pixels(activity, 15), 0, 0, Color.BLACK);
+        message.setText("RUNNING");
+        this.addView(message);
+    }
+
+    public void setText(String text){
+        message.setText(text);
+    }
+
+
+    private void initErrorOverlay(){
         int height_px = (int)(Prefs.SCREEN_RATIO*Prefs.SCREEN_WIDTH);
         LayoutParams layoutParams = new LayoutParams(MP, height_px);
         this.setLayoutParams(layoutParams);
         this.setBackground(activity.getResources().getDrawable(R.drawable.black_vertical_fade));
 
-        TextView tapHint = new TextView(activity);
+        /*TextView tapHint = new TextView(activity);
         tapHint.setLayoutParams(new LayoutParams(WC, WC));
         tapHint.setTextSize(20);
         tapHint.setTextAlignment(TEXT_ALIGNMENT_CENTER);
@@ -62,10 +83,11 @@ public class ExperimentViewOverlay extends RelativeLayout{
         tapHint.setTextColor(Color.WHITE);
         tapHint.setShadowLayer(Utils.dp_to_pixels(activity, 10), 0, 0, Color.BLACK);
         tapHint.setText("<TAP>\n when done.");
-        this.addView(tapHint);
+        this.addView(tapHint);*/
     }
 
     public void fill(HashMap<String, Integer> itemsOnHand, int[] correctPos, int[] wrongPos){
+
         ShelvingUnit cart = experiment.getWarehouseData().getCart();
         int cols = cart.getDimensions()[1];
 

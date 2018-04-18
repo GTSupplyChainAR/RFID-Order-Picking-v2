@@ -1,6 +1,9 @@
 package com.thad.rfid_orderpick;
 
 import android.content.Context;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -57,9 +60,8 @@ public class MobileClient implements ExperimentListener{
         mExperiment.setData(mFileIO.loadWarehouseData(),
                 mFileIO.loadPickingDataTraining(), mFileIO.loadPickingDataTesting());
 
-        if(Prefs.QUICK_START && !Prefs.RUN_OFFLINE){
+        if(Prefs.QUICK_START && !Prefs.RUN_OFFLINE)
             mCommHandler.connect();
-        }
     }
 
 
@@ -87,7 +89,7 @@ public class MobileClient implements ExperimentListener{
         if(mExperiment.isRunning())
             stopExperiment();
         else
-            startExperiment(true);
+            startExperiment();
     }
     public void stopExperiment(){
         boolean canStop = mExperiment.stop();
@@ -95,24 +97,22 @@ public class MobileClient implements ExperimentListener{
             if(!Prefs.RUN_OFFLINE)
                 mCommHandler.stopExperiment();
             mUI.onExperimentToggled();
-            mUI.onTrainingSelected();
+            //mUI.onTrainingSelected();
         }
     }
-    private void startExperiment(boolean isTraining){
-        boolean canStart;
-        if(isTraining)
-            canStart = mExperiment.startTraining();
-        else
-            canStart = mExperiment.startTesting();
+    private void startExperiment(){
+        boolean canStart = mExperiment.start();
 
         if(canStart){
             if(!Prefs.RUN_OFFLINE)
-                mCommHandler.startExperiment(isTraining);
+                mCommHandler.startExperiment();
             mUI.onExperimentToggled();
             mUI.onResume();
         }
     }
     public void pauseExperiment(){
+        playErrorSound();
+
         mExperiment.pause();
         mUI.onPause();
         if(!Prefs.RUN_OFFLINE)
@@ -135,21 +135,26 @@ public class MobileClient implements ExperimentListener{
         mUI.editLogPopup();
     }
     public void onTrainingClicked(){
-        stopExperiment();
+        if(mExperiment.isRunning())
+            stopExperiment();
         mUI.onTrainingSelected();
-        startExperiment(true);
+        mCommHandler.setTraining();
+        mExperiment.setTraining();
+        //startExperiment(true);
     }
     public void onTestingClicked(){
-        stopExperiment();
+        if(mExperiment.isRunning())
+            stopExperiment();
         mUI.onTestingSelected();
-        startExperiment(false);
+        mCommHandler.setTesting();
+        mExperiment.setTesting();
+        //startExperiment(false);
     }
     public void onPausePlayClicked(){
-        if(mExperiment.isPaused()){
+        if(mExperiment.isPaused())
             resumeExperiment();
-        } else {
+        else
             pauseExperiment();
-        }
     }
 
 
@@ -206,4 +211,13 @@ public class MobileClient implements ExperimentListener{
     public boolean isGlass(){return false;}
     public void playSound(Utils.SOUNDS sound){}
 
+    private void playErrorSound(){
+        try {
+            Uri soundURI = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getContext(), soundURI);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

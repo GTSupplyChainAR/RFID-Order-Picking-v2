@@ -1,7 +1,6 @@
 package com.thad.rfid_lib.UI;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.TypedValue;

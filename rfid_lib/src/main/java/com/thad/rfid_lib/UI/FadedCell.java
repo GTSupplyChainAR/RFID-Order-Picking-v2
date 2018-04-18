@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 import android.widget.ImageView;
 
 import com.thad.rfid_lib.R;

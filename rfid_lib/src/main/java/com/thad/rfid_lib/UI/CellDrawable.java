@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.util.Log;
 
 import com.thad.rfid_lib.R;
 import com.thad.rfid_lib.Static.Utils;

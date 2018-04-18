@@ -8,11 +8,8 @@ import android.util.Log;
 import com.thad.rfid_lib.Communications.BluetoothListener;
 import com.thad.rfid_lib.Communications.CommThread;
 import com.thad.rfid_lib.Decoder;
-import com.thad.rfid_lib.Experiment.Experiment;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
 

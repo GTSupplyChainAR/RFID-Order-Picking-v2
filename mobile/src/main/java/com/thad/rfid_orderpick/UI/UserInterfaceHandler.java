@@ -2,7 +2,6 @@ package com.thad.rfid_orderpick.UI;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
@@ -157,24 +156,24 @@ public class UserInterfaceHandler {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LinearLayout deviceList = mActivity.findViewById(R.id.deviceList);
+                //LinearLayout deviceList = mActivity.findViewById(R.id.deviceList);
+                //LinearLayout experimentBar = mActivity.findViewById(R.id.experiment_bar);
                 Button experimentButton = mActivity.findViewById(R.id.experiment_button);
-                LinearLayout experimentBar = mActivity.findViewById(R.id.experiment_bar);
                 LinearLayout timer_layout = mActivity.findViewById(R.id.timer_layout);
                 TextView username = mActivity.findViewById(R.id.username);
                 ProgressBar progressBar = mActivity.findViewById(R.id.progressBar);
                 username.setVisibility(View.GONE);
                 if(experimentRunning) {
                     experimentButton.setText("START");
-                    deviceList.setVisibility(View.VISIBLE);
-                    experimentBar.setVisibility(View.GONE);
+                    //deviceList.setVisibility(View.VISIBLE);
+                    //experimentBar.setVisibility(View.GONE);
                     timer_layout.setVisibility(View.GONE);
                     progressBar.setVisibility(View.GONE);
                     experimentRunning = false;
                 }else{
                     experimentButton.setText("STOP");
                     //deviceList.setVisibility(View.GONE);
-                    experimentBar.setVisibility(View.VISIBLE);
+                    //experimentBar.setVisibility(View.VISIBLE);
                     timer_layout.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
                     progressBar.setProgress(0);

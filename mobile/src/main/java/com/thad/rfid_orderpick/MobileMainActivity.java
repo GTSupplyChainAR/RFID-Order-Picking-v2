@@ -1,10 +1,8 @@
 package com.thad.rfid_orderpick;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,13 +13,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
-import com.thad.rfid_orderpick.Communications.ClientBluetooth;
-import com.thad.rfid_orderpick.Communications.XBandInterface;
-import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
 
 public class MobileMainActivity extends AppCompatActivity{

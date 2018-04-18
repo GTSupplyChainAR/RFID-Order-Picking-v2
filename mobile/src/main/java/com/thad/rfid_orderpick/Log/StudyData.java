@@ -1,7 +1,5 @@
 package com.thad.rfid_orderpick.Log;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

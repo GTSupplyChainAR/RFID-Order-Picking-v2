@@ -36,6 +36,7 @@ public class Experiment {
     private ExperimentListener mClient;
 
     private STATES state;
+    public boolean error_mode;
     private WarehouseData warehouseData;
     private PickingData pickingDataTraining, pickingDataTesting, pickingData;
 
@@ -69,15 +70,7 @@ public class Experiment {
 
 
     //COMMANDS
-    public boolean startTraining(){
-        pickingData = pickingDataTraining;
-        return start();
-    }
-    public boolean startTesting(){
-        pickingData = pickingDataTesting;
-        return start();
-    }
-    private boolean start(){
+    public boolean start(){
         if(isRunning())
             return false;
 
@@ -85,6 +78,7 @@ public class Experiment {
         startTime = System.currentTimeMillis();
         pausedTimes.add(startTime);
         state = STATES.ACTIVE;
+        error_mode = false;
 
         experimentView = new ExperimentView(this);
         experimentView.setData(warehouseData);
@@ -130,6 +124,7 @@ public class Experiment {
         if(state != STATES.PAUSED)
             return false;
 
+        experimentView.hideSimpleOverlay();
         pausedTimes.add(System.currentTimeMillis());
         state = STATES.ACTIVE;
         log("RESUMED");
@@ -137,8 +132,10 @@ public class Experiment {
         return true;
     }
     public boolean pause(){
-        if(state != STATES.ACTIVE)
+        if(state != STATES.ACTIVE && !error_mode)
             return false;
+
+        experimentView.showPauseOverlay();
 
         pausedTimes.add(System.currentTimeMillis());
         state = STATES.PAUSED;
@@ -154,7 +151,7 @@ public class Experiment {
         }
         startTime = null;
         pickingData.reset();
-        pickingData = pickingDataTraining;
+        //pickingData = pickingDataTraining;
         itemsOnHand.clear();
         wrongScans.clear();
         pausedTimes.clear();
@@ -163,7 +160,12 @@ public class Experiment {
     }
 
     public void onNewScan(String tag){
-        if(state != STATES.ACTIVE) {
+        if(error_mode && tag.equals(activeOrder.getReceiveBinTag())){
+            errorFixed();
+            return;
+        }
+
+        if(state != STATES.ACTIVE || error_mode) {
             Log.e(TAG, "Experiment is not Active, so ignoring Scan "+tag);
             return;
         }
@@ -248,9 +250,9 @@ public class Experiment {
             if(itemsOnHand.size() > 0) {
                 print("Items in the wrong receive bin.");
                 log("INVALID_RECEIVE_BIN "+tag+" "+pickingOrder.getReceiveBinTag());
-                state = STATES.ERROR;
+                error_mode = true;
                 mClient.playSound(Utils.SOUNDS.ERROR);
-                experimentView.displayOverlay(itemsOnHand, pickingOrder.getReceiveBinTag(), tag);
+                experimentView.displayErrorOverlay(itemsOnHand, pickingOrder.getReceiveBinTag(), tag);
             }
             return false;
         }
@@ -379,6 +381,12 @@ public class Experiment {
 
 
     //SETTERS
+    public void setTraining(){
+        pickingData = pickingDataTraining;
+    }
+    public void setTesting(){
+        pickingData = pickingDataTesting;
+    }
     public void setData(WarehouseData warehouseData, PickingData pickingDataTraining, PickingData pickingDataTesting){
         setData(warehouseData);
         setData(pickingDataTraining, pickingDataTesting);
@@ -399,20 +407,19 @@ public class Experiment {
             state = STATES.READY;
     }
 
-
     public void errorFixed(){
-        if(state != STATES.ERROR)
+        if(!error_mode || state == STATES.PAUSED)
             return;
         log("ERROR_CORRECTED");
-        state = STATES.ACTIVE;
-        experimentView.hideOverlay();
+        error_mode = false;
+        experimentView.hideErrorOverlay();
         experimentView.getCartUI().emptyAll();
         experimentView.getCartUI().fillCell(Utils.tagToPos(activeOrder.getReceiveBinTag()));
         onNewScan(activeOrder.getReceiveBinTag());
     }
 
     //UTILS
-    public boolean isRunning(){return state == STATES.ACTIVE || state == STATES.ERROR || state == STATES.PAUSED;}
+    public boolean isRunning(){return state == STATES.ACTIVE || state == STATES.PAUSED;}
     public boolean isActive(){return state == STATES.ACTIVE;}
     public boolean isPaused(){return state == STATES.PAUSED; }
     public Long getElapsedTime(){

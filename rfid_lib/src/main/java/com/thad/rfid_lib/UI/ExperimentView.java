@@ -40,12 +40,11 @@ public class ExperimentView extends LinearLayout {
 
     private WarehouseData warehouseData;
     private ShelvingUnitUI rackUI, cartUI;
-    private ExperimentViewOverlay overlay;
+    private ExperimentViewOverlay overlayError, overlaySimple;
     private int activeShelvingUnit;
 
     //VIEWS
     private TextView title;
-
 
     public ExperimentView(Experiment experiment) {
         super(experiment.getContext());
@@ -59,12 +58,29 @@ public class ExperimentView extends LinearLayout {
         this.setOrientation(VERTICAL);
     }
 
-
-    public void displayOverlay(HashMap<String, Integer> itemsOnHand, String correctBinTag, String wrongBinTag){
+    public void hideSimpleOverlay(){
         ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                overlay.setVisibility(VISIBLE);
+                overlaySimple.setVisibility(GONE);
+            }
+        });
+    }
+    public void showPauseOverlay(){
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                overlaySimple.setVisibility(VISIBLE);
+                overlaySimple.setText("PAUSED");
+            }
+        });
+    }
+
+    public void displayErrorOverlay(HashMap<String, Integer> itemsOnHand, String correctBinTag, String wrongBinTag){
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                overlayError.setVisibility(VISIBLE);
             }
         });
 
@@ -80,15 +96,15 @@ public class ExperimentView extends LinearLayout {
         Log.d(TAG, "Should have been put into "+correctBinTag+" but were put into " + wrongBinTag+" instead.");
 
         cartUI.toggleError(wrongPos);
-        overlay.fill(itemsOnHand, correctPos, wrongPos);
+        overlayError.fill(itemsOnHand, correctPos, wrongPos);
     }
 
-    public void hideOverlay(){
+    public void hideErrorOverlay(){
         ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                overlay.setVisibility(GONE);
-                overlay.removeAllViews();
+                overlayError.setVisibility(GONE);
+                overlayError.removeAllViews();
             }
         });
     }
@@ -104,14 +120,17 @@ public class ExperimentView extends LinearLayout {
         LinearLayout cartLayout = generateCartLayout();
         title = generateTitle();
 
-        overlay = new ExperimentViewOverlay(experiment);
-        overlay.setVisibility(GONE);
+        overlayError = new ExperimentViewOverlay(experiment, false);
+        overlayError.setVisibility(GONE);
+
+        overlaySimple = new ExperimentViewOverlay(experiment, true);
+        overlaySimple.setVisibility(GONE);
 
         mainLayout.addView(rackLayout);
-        mainLayout.addView(overlay);
+        mainLayout.addView(overlayError);
         mainLayout.addView(cartLayout);
         mainLayout.addView(title);
-
+        mainLayout.addView(overlaySimple);
 
         ((Activity)context).runOnUiThread(new AddViewRunnable(this, mainLayout));
     }
@@ -173,7 +192,6 @@ public class ExperimentView extends LinearLayout {
         }
     }
 
-
     //COMMANDS
     public ShelvingUnitUI getRackUI(){return rackUI;}
     public ShelvingUnitUI getCartUI(){return cartUI;}
@@ -196,17 +214,7 @@ public class ExperimentView extends LinearLayout {
         ((Activity)context).runOnUiThread(new SetTextRunnable(title,
                 "Task "+pickingOrder.getTaskID()+" - Order "+pickingOrder.getID()));
     }
-    public void changeShelvingUnit(){
-        changeShelvingUnit((activeShelvingUnit+1)%warehouseData.getShelvingUnitCount());
-    }
-    public void changeShelvingUnit(String tag){
-        for(int i = 0 ; i < warehouseData.getShelvingUnitCount() ; i++){
-            if(warehouseData.get(i).getTag() == tag){
-                changeShelvingUnit(i);
-                return;
-            }
-        }
-    }
+
     public void changeShelvingUnit(int new_ind){
         activeShelvingUnit = new_ind;
         createViews();

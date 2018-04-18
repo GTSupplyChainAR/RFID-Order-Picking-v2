@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.thad.rfid_lib.Data.PickingData;
 import com.thad.rfid_lib.Data.WarehouseData;
-import com.thad.rfid_lib.Decoder;
 import com.thad.rfid_lib.Static.Prefs;
 
 import java.io.IOException;

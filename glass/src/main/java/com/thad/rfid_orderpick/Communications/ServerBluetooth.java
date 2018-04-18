@@ -10,7 +10,6 @@ import com.thad.rfid_lib.Communications.BluetoothListener;
 import com.thad.rfid_lib.Communications.CommThread;
 import com.thad.rfid_lib.Decoder;
 import com.thad.rfid_lib.Static.Prefs;
-import com.thad.rfid_orderpick.Communications.CommunicationHandler;
 
 import java.io.IOException;
 import java.util.Set;

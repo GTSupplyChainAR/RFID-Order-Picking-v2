@@ -7,7 +7,6 @@ import com.thad.rfid_lib.Static.Prefs;
 import de.ubimax.xbandtest.xband.XBandConnectionHandler;
 import de.ubimax.xbandtest.xband.XBandEventListener;
 import de.ubimax.xbandtest.xband.XBandIMUData;
-import de.ubimax.xbandtest.xband.XBandProperty;
 
 /**
  * Created by theo on 1/25/18.
