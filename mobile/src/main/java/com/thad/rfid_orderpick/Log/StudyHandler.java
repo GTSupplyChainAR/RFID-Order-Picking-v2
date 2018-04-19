@@ -38,7 +38,7 @@ public class StudyHandler {
     private void init() {
         studyData = logIO.readStudyData();
 
-        if(true) {
+        if(false) {
             logIO.deleteAllLogFiles();
             studyData.deleteAll(logIO);
             studyData = new StudyData();
