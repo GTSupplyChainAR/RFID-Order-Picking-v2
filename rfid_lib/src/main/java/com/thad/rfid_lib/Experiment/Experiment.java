@@ -16,6 +16,7 @@ import com.thad.rfid_lib.UI.ExperimentView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +44,6 @@ public class Experiment {
     private ExperimentView experimentView;
     private ExperimentLog experimentLog;
     private boolean isStudyRunning;
-    private boolean processingScan;
 
     private int active_shelving_unit = 0, task_completed_count = 0;
     private PickingOrder activeOrder;
@@ -64,7 +64,6 @@ public class Experiment {
 
         state = STATES.BLOCKED;
         isStudyRunning = false;
-        processingScan = false;
         mClient = client;
     }
 
@@ -135,7 +134,7 @@ public class Experiment {
         if(state != STATES.ACTIVE && !error_mode)
             return false;
 
-        experimentView.showPauseOverlay();
+        experimentView.showSimpleOverlay("PAUSE");
 
         pausedTimes.add(System.currentTimeMillis());
         state = STATES.PAUSED;
@@ -170,23 +169,13 @@ public class Experiment {
             return;
         }
 
-        if(processingScan){
-            Log.e(TAG, "A scan is already being processed. Ignoring "+tag);
-            log("CONCURRENT_SCAN "+tag);
-            return;
-        }
-
-        processingScan = true;
-
         print("New Scan - "+tag);
         log("SCAN "+tag);
 
         boolean isScanValid = checkErrors(tag);
 
-        if(!isScanValid) {
-            processingScan = false;
+        if(!isScanValid)
             return;
-        }
 
         String letterTag = Utils.tagToLetter(tag);
         int[] pos = Utils.tagToPos(tag);
@@ -216,8 +205,6 @@ public class Experiment {
             }
         }
 
-        //Log.d(TAG, "No longer processing a SCAN.");
-        processingScan = false;
     }
 
     private boolean checkErrors(String tag){
@@ -316,8 +303,9 @@ public class Experiment {
                 print("Sub-order completed.\nTask completed.");
                 task_completed_count ++;
                 if(activeTask.getID() == pickingData.getLastTask().getID()){
-                    state = STATES.PAUSED;
                     renderActiveOrder();
+                    pause();
+                    experimentView.showSimpleOverlay("ENDED");
                     log("EXPERIMENT_ENDED");
                     print("Experiment ended.");
                     return;

@@ -45,6 +45,7 @@ public class Prefs {
 
     //FILENAMES
     public static final String EXPERIMENT_LOGS_FOLDER = "experiment_logs";
+    public static final String GENERATE_LOGS_FOLDER = "generate_logs";
     public static final String USER_STUDY_FILENAME = "user_study.json";
     public static final String WAREHOUSE_DATA_FILENAME = "warehouse.json";
     public static final String PICK_DATA_TESTING_FILENAME = "tasks-pick-by-hud_rfid-testing.json";

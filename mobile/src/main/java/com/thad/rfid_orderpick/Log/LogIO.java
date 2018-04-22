@@ -2,6 +2,7 @@ package com.thad.rfid_orderpick.Log;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
@@ -30,9 +31,14 @@ public class LogIO {
     public LogIO(Context context){
         this.context = context;
         dir = context.getExternalFilesDir(null);
-        File experiment_log_dir = new File(dir, "experiment_logs");
+
+        File experiment_log_dir = new File(dir, Prefs.EXPERIMENT_LOGS_FOLDER);
         if(!experiment_log_dir.exists())
             experiment_log_dir.mkdirs();
+
+        File generate_log_dir = new File(dir, Prefs.GENERATE_LOGS_FOLDER);
+        if(!generate_log_dir.exists())
+            generate_log_dir.mkdirs();
     }
 
     public StudyData readStudyData(){

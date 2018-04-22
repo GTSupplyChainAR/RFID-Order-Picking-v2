@@ -66,12 +66,12 @@ public class ExperimentView extends LinearLayout {
             }
         });
     }
-    public void showPauseOverlay(){
+    public void showSimpleOverlay(final String message){
         ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 overlaySimple.setVisibility(VISIBLE);
-                overlaySimple.setText("PAUSED");
+                overlaySimple.setText(message.toUpperCase());
             }
         });
     }

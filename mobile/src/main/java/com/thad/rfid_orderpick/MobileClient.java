@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -20,7 +21,10 @@ import com.thad.rfid_orderpick.Log.StudyHandler;
 import com.thad.rfid_orderpick.Log.StudySubject;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.security.auth.Subject;
 
@@ -40,6 +44,8 @@ public class MobileClient implements ExperimentListener{
 
     private Experiment mExperiment;
     private StudyHandler mStudyHandler;
+
+    private boolean processingScan = false;
 
     public MobileClient(Context context){
         mContext = context;
@@ -160,11 +166,25 @@ public class MobileClient implements ExperimentListener{
 
     //EVENT LISTENERS
     public void onNewRFIDScan(String scan, int strength){
-        //mLog("New RFID Scan: "+scan+", Strength: "+strength);
-        mExperiment.onNewScan(scan);
-        mUI.updateProgress(mExperiment.getProgress());
+        if(!processingScan) {
+            processingScan = true;
+        }else{
+            long inTime = System.currentTimeMillis();
+            long cutoff_time = 500;
+            while(processingScan) {
+                if(System.currentTimeMillis() - inTime >= cutoff_time)
+                    return;
+                continue;
+            }
+            processingScan = true;
+        }
+
         if(!Prefs.RUN_OFFLINE)
             mCommHandler.sendScan(scan);
+        mExperiment.onNewScan(scan);
+        mUI.updateProgress(mExperiment.getProgress());
+
+        processingScan = false;
     }
     public void onBatteryUpdate(int device_index, double battery_level) {
         mUI.updateBattery(device_index, battery_level);
@@ -207,7 +227,23 @@ public class MobileClient implements ExperimentListener{
     public ExperimentLog getExperimentLog(){return mStudyHandler.getExperimentLog();}
     public void autosave(){mStudyHandler.autosave();}
     public void mLog(String str){mUI.mLog(str);}
-    public void onFakeScan(String scan){onNewRFIDScan(scan, 255);}
+    public void onFakeScan(String scan){
+        //Code to test concurrent scans.
+        /*String[] all_tags = new String[]{"A11","A12","A13",
+                "A21","A22","A23",
+                "A31","A32","A33",
+                "A41","A42","A43"};
+
+        ScanThread[] threads = new ScanThread[all_tags.length];
+        for(int i = 0 ; i < all_tags.length ; i++) {
+            Random rand = new Random();
+            int ri = rand.nextInt(all_tags.length);
+            threads[i] = new ScanThread(all_tags[i]);
+        }
+        for(ScanThread thread : threads)
+            thread.start();*/
+        onNewRFIDScan(scan, 255);
+    }
     public boolean isGlass(){return false;}
     public void playSound(Utils.SOUNDS sound){}
 
@@ -218,6 +254,16 @@ public class MobileClient implements ExperimentListener{
             r.play();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    private class ScanThread extends Thread{
+        String tag;
+        public ScanThread(String tag){this.tag = tag;}
+        public void run(){
+            Log.d(TAG, "----- Starting thread "+tag);
+            onNewRFIDScan(tag, 255);
         }
     }
 }
