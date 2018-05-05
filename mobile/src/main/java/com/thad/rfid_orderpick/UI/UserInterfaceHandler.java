@@ -378,27 +378,37 @@ public class UserInterfaceHandler {
 
         List<String> names = mClient.getSubjectNames();
         names.add(0, "- Select Subject -");
-        final Spinner dropdown = promptsView.findViewById(R.id.subjects_dropdown);
+        final Spinner dropdownSubjects = promptsView.findViewById(R.id.subjects_dropdown);
         String[] namesArr = new String[names.size()];
         names.toArray(namesArr);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(mActivity, android.R.layout.simple_spinner_dropdown_item, names);
-        dropdown.setAdapter(adapter);
+        final ArrayAdapter<String> adapterSubjects = new ArrayAdapter<String>(mActivity, android.R.layout.simple_spinner_dropdown_item, names);
+        dropdownSubjects.setAdapter(adapterSubjects);
 
         final EditText userInput = promptsView.findViewById(R.id.user_input_name);
         if(mClient.getActiveSubject() != null)
             userInput.setText(mClient.getActiveSubject().getName());
 
-        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        dropdownSubjects.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(position != 0)
-                    userInput.setText(String.valueOf(dropdown.getSelectedItem()));
+                    userInput.setText(String.valueOf(dropdownSubjects.getSelectedItem()));
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
+
+
+        List<String> run_logs = mClient.getRunLogs();
+        run_logs.add(0, "- Select Log to Run -");
+        final Spinner dropdownLogs = promptsView.findViewById(R.id.run_logs_dropdown);
+        String[] logsArr = new String[run_logs.size()];
+        run_logs.toArray(logsArr);
+        final ArrayAdapter<String> adapterLogs = new ArrayAdapter<String>(mActivity, android.R.layout.simple_spinner_dropdown_item, run_logs);
+        dropdownLogs.setAdapter(adapterLogs);
+
 
         // set dialog message
         alertDialogBuilder
@@ -407,9 +417,12 @@ public class UserInterfaceHandler {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 String username = String.valueOf(userInput.getText());
-                                if(username.length() != 0) {
+                                if(username.length() != 0)
                                     mClient.onSubjectSelected(username);
-                                }
+
+                                int position = dropdownLogs.getSelectedItemPosition();
+                                if(position != 0)
+                                    mClient.setRunLog(String.valueOf(dropdownLogs.getSelectedItem()));
                             }
                         })
                 .setNegativeButton("Cancel",

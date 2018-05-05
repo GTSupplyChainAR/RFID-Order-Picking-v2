@@ -4,10 +4,7 @@ import android.content.Context;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 
 import com.thad.rfid_lib.Experiment.Experiment;
 import com.thad.rfid_lib.Experiment.ExperimentListener;
@@ -16,17 +13,13 @@ import com.thad.rfid_lib.FileIO;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.Communications.CommunicationHandler;
+import com.thad.rfid_lib.RunLog;
 import com.thad.rfid_orderpick.Log.StudyData;
 import com.thad.rfid_orderpick.Log.StudyHandler;
 import com.thad.rfid_orderpick.Log.StudySubject;
 import com.thad.rfid_orderpick.UI.UserInterfaceHandler;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
-import javax.security.auth.Subject;
 
 /**
  * This class keeps track of the experiment.
@@ -196,8 +189,13 @@ public class MobileClient implements ExperimentListener{
     //END OF LISTENERS
 
     public void onSubjectSelected(String username){ mStudyHandler.onSubjectSelected(username);}
-    public List<String> getSubjectNames(){ return mStudyHandler.getSubjectNames(); }
     public StudySubject getActiveSubject(){return mStudyHandler.getActiveSubject();}
+    public List<String> getSubjectNames(){ return mStudyHandler.getSubjectNames(); }
+    public List<String> getRunLogs(){ return mStudyHandler.getRunLogs(); }
+    public void setRunLog(String log_filename){
+        RunLog log = mStudyHandler.loadRunLog(log_filename);
+        mExperiment.setRunLog(log);
+    }
 
     //GETTERS
     public String[] getAddresses(){
@@ -258,12 +256,13 @@ public class MobileClient implements ExperimentListener{
     }
 
 
-    private class ScanThread extends Thread{
+    //Code to test concurrent scans.
+    /*private class ScanThread extends Thread{
         String tag;
         public ScanThread(String tag){this.tag = tag;}
         public void run(){
             Log.d(TAG, "----- Starting thread "+tag);
             onNewRFIDScan(tag, 255);
         }
-    }
+    }*/
 }

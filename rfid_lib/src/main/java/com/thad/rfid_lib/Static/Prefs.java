@@ -9,6 +9,7 @@ public class Prefs {
     public static final int NUM_DEVICES = 3;
     public static final boolean QUICK_START = false;
     public static final boolean RUN_OFFLINE = false;
+    public static final int SPEED = 1;
 
     //DEFAULT ADDRESSES
     public static final String PHONE_ADDRESS = "3C:BB:FD:27:A0:1E";
@@ -45,7 +46,7 @@ public class Prefs {
 
     //FILENAMES
     public static final String EXPERIMENT_LOGS_FOLDER = "experiment_logs";
-    public static final String GENERATE_LOGS_FOLDER = "generate_logs";
+    public static final String RUN_LOGS_FOLDER = "run_logs";
     public static final String USER_STUDY_FILENAME = "user_study.json";
     public static final String WAREHOUSE_DATA_FILENAME = "warehouse.json";
     public static final String PICK_DATA_TESTING_FILENAME = "tasks-pick-by-hud_rfid-testing.json";

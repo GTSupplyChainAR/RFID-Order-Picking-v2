@@ -2,8 +2,8 @@ package com.thad.rfid_orderpick.Log;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.ProgressBar;
 
+import com.thad.rfid_lib.RunLog;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 
@@ -16,7 +16,9 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Scanner;
 
 /**
  * Created by theo on 3/14/18.
@@ -32,13 +34,13 @@ public class LogIO {
         this.context = context;
         dir = context.getExternalFilesDir(null);
 
-        File experiment_log_dir = new File(dir, Prefs.EXPERIMENT_LOGS_FOLDER);
-        if(!experiment_log_dir.exists())
-            experiment_log_dir.mkdirs();
+        File experiment_logs_dir = new File(dir, Prefs.EXPERIMENT_LOGS_FOLDER);
+        if(!experiment_logs_dir.exists())
+            experiment_logs_dir.mkdirs();
 
-        File generate_log_dir = new File(dir, Prefs.GENERATE_LOGS_FOLDER);
-        if(!generate_log_dir.exists())
-            generate_log_dir.mkdirs();
+        File run_logs_dir = new File(dir, Prefs.RUN_LOGS_FOLDER);
+        if(!run_logs_dir.exists())
+            run_logs_dir.mkdirs();
     }
 
     public StudyData readStudyData(){
@@ -70,7 +72,8 @@ public class LogIO {
         }
     }
 
-    private String readExternal(String filename){
+    private String readExternal(String filename){ return readExternal(filename, false);}
+    private String readExternal(String filename, boolean line_breaks){
         Log.d(TAG, "Reading from "+filename);
 
         File file = new File(dir, filename);
@@ -80,8 +83,11 @@ public class LogIO {
             DataInputStream in = new DataInputStream(fis);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String strLine;
+
             while ((strLine = br.readLine()) != null) {
                 text = text + strLine;
+                if(line_breaks)
+                    text += "\n";
             }
             in.close();
             Log.d(TAG, "File read.");
@@ -119,8 +125,7 @@ public class LogIO {
     }
     public void deleteAllLogFiles(){
         File log_folder = new File(dir, Prefs.EXPERIMENT_LOGS_FOLDER);
-        if (log_folder.isDirectory())
-        {
+        if (log_folder.isDirectory()) {
             String[] children = log_folder.list();
             for (int i = 0; i < children.length; i++)
                 new File(log_folder, children[i]).delete();
@@ -129,6 +134,50 @@ public class LogIO {
 
 
 
+    public String[] getRunLogs(){
+        File run_log_folder = new File(dir, Prefs.RUN_LOGS_FOLDER);
+        if(run_log_folder.isDirectory()) {
+            return run_log_folder.list();
+        }
+        return new String[0];
+    }
+    public RunLog readRunLog(String log_filename){
+        RunLog runLog = new RunLog();
+
+        String path = dir +"/"+ Prefs.RUN_LOGS_FOLDER +"/"+ log_filename;
+        FileInputStream inputStream = null;
+        Scanner sc = null;
+        try {
+            inputStream = new FileInputStream(path);
+            sc = new Scanner(inputStream, "UTF-8");
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                if(line.charAt(0) == '#')
+                    continue;
+
+                String[] split_line = line.split(" ");
+
+                if(split_line[1].equals("SCAN") || split_line[1].equals("CONCURRENT_SCAN"))
+                    runLog.addScan(split_line[0], split_line[2]);
+            }
+            // Scanner suppresses exceptions
+            if (sc.ioException() != null)
+                throw sc.ioException();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (sc != null)
+                sc.close();
+        }
+        return runLog;
+    }
 
 
     public void createSampleData() throws Exception {

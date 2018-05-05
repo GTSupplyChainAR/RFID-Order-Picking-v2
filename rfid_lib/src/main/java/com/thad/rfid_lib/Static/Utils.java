@@ -119,6 +119,22 @@ public class Utils {
             timestamp += ":"+subsecsStr;
         return timestamp;
     }
+    public static long decodeTimestamp(String timestamp){
+        if(timestamp.length() <= 4)
+            return 0l;
+        else if(timestamp.charAt(0) == '[')
+            timestamp = timestamp.substring(1,timestamp.length()-2);
+
+        String[] times_split = timestamp.split(":");
+        if(times_split.length != 4)
+            return 0l;
+
+        long ms = Integer.parseInt(times_split[0])*60*60*1000;
+        ms += Integer.parseInt(times_split[1])*60*1000;
+        ms += Integer.parseInt(times_split[2])*1000;
+        ms += (long)(Integer.parseInt(times_split[3])*1000f/60f);
+        return ms;
+    }
 
     public static void changeDrawableColor(Drawable drawable, int color_resource){
         if (drawable instanceof ShapeDrawable) {

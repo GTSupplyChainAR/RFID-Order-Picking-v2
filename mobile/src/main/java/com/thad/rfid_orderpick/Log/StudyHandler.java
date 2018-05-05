@@ -3,10 +3,13 @@ package com.thad.rfid_orderpick.Log;
 import android.content.Context;
 
 import com.thad.rfid_lib.Experiment.ExperimentLog;
+import com.thad.rfid_lib.RunLog;
 import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_orderpick.MobileClient;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -74,6 +77,10 @@ public class StudyHandler {
         return studyData.getNames();
     }
     public StudySubject getActiveSubject(){return studyData.getActiveSubject();}
+    public List<String> getRunLogs(){ return new ArrayList<>(Arrays.asList(logIO.getRunLogs()));}
+    public RunLog loadRunLog(String log_filename){
+        return logIO.readRunLog(log_filename);
+    }
 
     public void autosave(){
         logIO.saveStudyData(studyData);

@@ -25,4 +25,19 @@
         android:spinnerMode="dropdown">
     </Spinner>
 
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/app_large_text_size"
+        android:text="Run Existing Log"/>
+    <Spinner
+        android:id="@+id/run_logs_dropdown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown">
+    </Spinner>
+
 </LinearLayout>

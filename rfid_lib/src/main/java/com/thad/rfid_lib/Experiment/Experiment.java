@@ -11,6 +11,8 @@ import com.thad.rfid_lib.Data.PickingOrder;
 import com.thad.rfid_lib.Data.PickingTask;
 import com.thad.rfid_lib.Data.ShelvingUnit;
 import com.thad.rfid_lib.Data.WarehouseData;
+import com.thad.rfid_lib.RunLog;
+import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UI.ExperimentView;
 
@@ -43,6 +45,7 @@ public class Experiment {
 
     private ExperimentView experimentView;
     private ExperimentLog experimentLog;
+    private RunLogThread runLogThread;
     private boolean isStudyRunning;
 
     private int active_shelving_unit = 0, task_completed_count = 0;
@@ -156,9 +159,17 @@ public class Experiment {
         pausedTimes.clear();
         activeOrder = null;
         task_completed_count = 0;
+
+        if(runLogThread != null) {
+            runLogThread.exit();
+            runLogThread = null;
+        }
     }
 
     public void onNewScan(String tag){
+        print("New Scan - "+tag);
+        log("SCAN "+tag);
+
         if(error_mode && tag.equals(activeOrder.getReceiveBinTag())){
             errorFixed();
             return;
@@ -168,9 +179,6 @@ public class Experiment {
             Log.e(TAG, "Experiment is not Active, so ignoring Scan "+tag);
             return;
         }
-
-        print("New Scan - "+tag);
-        log("SCAN "+tag);
 
         boolean isScanValid = checkErrors(tag);
 
@@ -286,6 +294,12 @@ public class Experiment {
                         + warehouseData.get(active_shelving_unit).getTag());
             print("Starting Task "+activeOrder.getTaskID());
             print("Starting Order "+activeOrder.getID()+", Shelving Unit "+warehouseData.get(active_shelving_unit).getTag());
+
+            if(runLogThread != null){
+                runLogThread = new RunLogThread(this, runLogThread.getRunLog());
+                runLogThread.start();
+            }
+
             return;
         }
 
@@ -394,6 +408,9 @@ public class Experiment {
         if(warehouseData != null)
             state = STATES.READY;
     }
+    public void setRunLog(RunLog runLog){
+        runLogThread = new RunLogThread(this, runLog);
+    }
 
     public void errorFixed(){
         if(!error_mode || state == STATES.PAUSED)
@@ -420,7 +437,7 @@ public class Experiment {
             else
                 elapsedTime += pausedTimes.get(i + 1) - pausedTimes.get(i);
         }
-        return elapsedTime;
+        return elapsedTime* Prefs.SPEED;
     }
     public float getProgress(){
         return (float)task_completed_count/pickingData.getTaskCount();
@@ -448,4 +465,37 @@ public class Experiment {
         onFakeScan(fakeScan);
     }
 
+
+    private class RunLogThread extends Thread {
+        private Experiment experiment;
+        private RunLog runLog;
+        private boolean interrupt;
+
+        public RunLogThread(Experiment experiment, RunLog runLog){
+            this.experiment = experiment;
+            this.runLog = runLog;
+        }
+
+        public void run(){
+            interrupt = false;
+            int cnt = 0;
+            try {
+                while (cnt < runLog.size() && !interrupt) {
+                    long time = runLog.getTime(cnt);
+                    while (experiment.getElapsedTime() < time) {
+                        continue;
+                    }
+                    onFakeScan(runLog.getTag(cnt));
+                    cnt++;
+                }
+                Log.d(TAG, "Finished running the log.");
+            }catch (Exception e){
+                Log.e(TAG, "Exiting from Thread.");
+                e.printStackTrace();
+            }
+        }
+
+        public RunLog getRunLog(){ return runLog; }
+        public void exit(){interrupt = true;}
+    }
 }
