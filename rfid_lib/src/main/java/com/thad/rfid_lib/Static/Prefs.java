@@ -11,6 +11,7 @@ public class Prefs {
     public static final boolean RUN_OFFLINE = false;
     public static final int SPEED = 1;
     public static final boolean IS_DEMO = true;
+    public static final boolean IS_CRAPPY_DEMO = true; //Change tags
 
     //DEFAULT ADDRESSES
     //public static final String PHONE_ADDRESS = "3C:BB:FD:27:A0:1E";

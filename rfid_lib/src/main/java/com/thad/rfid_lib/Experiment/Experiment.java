@@ -26,6 +26,7 @@ import static com.thad.rfid_lib.Static.Prefs.DEMO_CART_COLS;
 import static com.thad.rfid_lib.Static.Prefs.DEMO_CART_ROWS;
 import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_COLS;
 import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_ROWS;
+import static com.thad.rfid_lib.Static.Prefs.IS_CRAPPY_DEMO;
 import static com.thad.rfid_lib.Static.Prefs.IS_DEMO;
 
 /**
@@ -175,6 +176,21 @@ public class Experiment {
     public void onNewScan(String tag){
         print("New Scan - "+tag);
         log("SCAN "+tag);
+
+        if(IS_CRAPPY_DEMO) {
+            if (tag.equals("B21"))
+                tag = "A12";
+            else if (tag.equals("B31"))
+                tag = "A13";
+            else if (tag.equals("A31"))
+                tag = "A22";
+            else if (tag.equals("A41"))
+                tag = "A23";
+            else if (tag.equals("B11"))
+                tag = "C11";
+            else if (tag.equals("B41"))
+                tag = "C12";
+        }
 
         if(error_mode && tag.equals(activeOrder.getReceiveBinTag())){
             errorFixed();
