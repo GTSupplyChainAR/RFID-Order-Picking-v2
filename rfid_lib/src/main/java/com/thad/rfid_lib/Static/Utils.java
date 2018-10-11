@@ -8,6 +8,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import org.json.JSONObject;
 
@@ -20,6 +21,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.thad.rfid_lib.Static.Prefs.DEMO_CART_COLS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_CART_ROWS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_COLS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_ROWS;
 
 /**
  * Created by theo on 2/27/18.
@@ -134,6 +140,36 @@ public class Utils {
         ms += Integer.parseInt(times_split[2])*1000;
         ms += (long)(Integer.parseInt(times_split[3])*1000f/60f);
         return ms;
+    }
+
+    public static boolean valueInArray (int val, int[] array){
+        for(int i = 0 ; i < array.length ; i++)
+            if(val == array[i])
+                return true;
+        return false;
+    }
+
+    public static boolean isTagInDemo(String tag){
+        String unitTag = String.valueOf(tag.charAt(0));
+        int row = Integer.valueOf(String.valueOf(tag.charAt(1)));
+        int col = Integer.valueOf(String.valueOf(tag.charAt(2)));
+        boolean is_row_in_demo, is_col_in_demo;
+
+        if(unitTag.equals("C")) {
+            is_row_in_demo = Utils.valueInArray(row, DEMO_CART_ROWS);
+            is_col_in_demo = Utils.valueInArray(col, DEMO_CART_COLS);
+        }else{
+            is_row_in_demo = Utils.valueInArray(row, DEMO_RACK_ROWS);
+            is_col_in_demo = Utils.valueInArray(col, DEMO_RACK_COLS);
+        }
+
+        if(unitTag.equals("B"))
+            return false;
+
+        Log.d("DEMO_TEST", "Tag, Row, Col -> "+tag+": ("+row+","+col+")");
+        Log.d("DEMO_TEST", "Is row "+row+" in demo? "+is_row_in_demo);
+        Log.d("DEMO_TEST", "Is col "+col+" in demo? "+is_col_in_demo);
+        return is_row_in_demo && is_col_in_demo;
     }
 
     public static void changeDrawableColor(Drawable drawable, int color_resource){

@@ -1,8 +1,17 @@
 package com.thad.rfid_lib.Data;
 
 
+import android.util.Log;
+
+import com.thad.rfid_lib.Static.Utils;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
+
+import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_COLS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_ROWS;
+import static com.thad.rfid_lib.Static.Prefs.IS_DEMO;
 
 /**
  * Created by theo on 1/30/18.
@@ -26,6 +35,8 @@ public class PickingOrder {
     }
 
     public void add(String tag, int val){
+        if(IS_DEMO && !Utils.isTagInDemo(tag))
+            return;
         remaining_items.put(tag, val);
         remaining_item_count += val;
     }
@@ -64,6 +75,7 @@ public class PickingOrder {
     public int getRemainingCountInShelvingUnit(ShelvingUnit shelvingUnit){
         return getCountInShelvingUnit(shelvingUnit, remaining_items);
     }
+
     public int getScannedCountInShelvingUnit(ShelvingUnit shelvingUnit){
         return getCountInShelvingUnit(shelvingUnit, scanned_items);
     }
@@ -71,8 +83,13 @@ public class PickingOrder {
         int count = 0;
         Set<String> tags = items.keySet();
         for(String tag: tags){
-            if(String.valueOf(tag.charAt(0)).equals(shelvingUnit.getTag()))
-                count += items.get(tag);
+            if(String.valueOf(tag.charAt(0)).equals(shelvingUnit.getTag())){
+                if(IS_DEMO && Utils.isTagInDemo(tag)){
+                        count += items.get(tag);
+                }else{
+                    count += items.get(tag);
+                }
+            }
         }
         return count;
     }

@@ -15,6 +15,8 @@ import com.thad.rfid_lib.Static.Prefs;
 import com.thad.rfid_lib.Static.Utils;
 import com.thad.rfid_lib.UIRunnables.SetTextRunnable;
 
+import static com.thad.rfid_lib.Static.Prefs.IS_DEMO;
+
 /**
  * Created by theo on 3/4/18.
  */
@@ -73,7 +75,8 @@ public class CellUI {
             }
         });
 
-        cellDrawable = new CellDrawable(activity, this);
+        boolean faded = IS_DEMO && !Utils.isTagInDemo(tag);
+        cellDrawable = new CellDrawable(activity, this, faded);
 
         empty();
     }
@@ -102,7 +105,10 @@ public class CellUI {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    cellDrawable.fill();
+                    if(IS_DEMO && !Utils.isTagInDemo(tag))
+                        cellDrawable.fill(true);
+                    else
+                        cellDrawable.fill(false);
                     cellView.setBackground(cellDrawable.getDrawable());
                 }
             });

@@ -22,6 +22,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
+import static com.thad.rfid_lib.Static.Prefs.DEMO_CART_COLS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_CART_ROWS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_COLS;
+import static com.thad.rfid_lib.Static.Prefs.DEMO_RACK_ROWS;
+import static com.thad.rfid_lib.Static.Prefs.IS_DEMO;
+
 /**
  * Created by theo on 2/22/18.
  */
@@ -352,7 +358,12 @@ public class Experiment {
         }
 
         int remainingItems = activeOrder.getRemainingCountInShelvingUnit(warehouseData.get(active_shelving_unit));
-        if(remainingItems != 0) {
+
+        //CHECK IF DEMO IS ACTIVE AND CART BIN IS IN DEMO
+        String tag = activeOrder.getReceiveBinTag();
+        boolean canceled_for_demo = IS_DEMO && !Utils.isTagInDemo(tag);
+
+        if(remainingItems != 0 && !canceled_for_demo) {
             experimentView.setTitle(activeOrder);
             renderActiveOrder();
         }else

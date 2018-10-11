@@ -2,6 +2,7 @@ package com.thad.rfid_lib.UI;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -30,7 +31,7 @@ public class CellDrawable {
     private int color;
     boolean isLeftEdge = false, isRightEdge = false;
 
-    public CellDrawable(Context context, CellUI cellUI) {
+    public CellDrawable(Context context, CellUI cellUI, boolean faded) {
         this.activity = (Activity) context;
         this.cellUI = cellUI;
         this.color = cellUI.getColorId();
@@ -40,7 +41,11 @@ public class CellDrawable {
         border_radii = (int) context.getResources().getDimension(R.dimen.corners);
 
         borderDrawable = new GradientDrawable();
-        borderDrawable.setStroke(border_width, context.getResources().getColor(color));
+
+        int a = 250;//(faded)?100:250;
+        int border_col = context.getResources().getColor(color);
+        border_col = Color.argb(a, Color.red(border_col), Color.green(border_col), Color.blue(border_col));
+        borderDrawable.setStroke(border_width, border_col);
 
         fillDrawable = new GradientDrawable();
         fillDrawable.setColor(context.getResources().getColor(color));
@@ -68,18 +73,25 @@ public class CellDrawable {
         empty();
     }
 
-    public void fill(){
+    public void fill(){fill(false);}
+    public void fill(final boolean faded){
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                int a = 250;//(faded)?100:250;
+
                 state = STATES.FILLED;
-                fillDrawable.setColor(activity.getResources().getColor(color));
+
+                int fill_col = activity.getResources().getColor(color);
+                fill_col = Color.argb(a, Color.red(fill_col), Color.green(fill_col), Color.blue(fill_col));
+                fillDrawable.setColor(fill_col);
                 Drawable[] layers = {borderDrawable, fillDrawable, arrowColSymbol};
                 layerDrawable = new LayerDrawable(layers);
                 layerDrawable.setLayerInset(0, 0, 0, 0, 0);
                 layerDrawable.setLayerInset(1, fill_padding, fill_padding, fill_padding, fill_padding);
 
                 int w = cellUI.getDims()[0], h = cellUI.getDims()[1];
+
                 arrowColSymbol.setAlpha(250);
                 layerDrawable.setLayerInset(2, (int)(0.7f*w), (int)(0.6f* h), 0, 0);
                 if(isLeftEdge)
